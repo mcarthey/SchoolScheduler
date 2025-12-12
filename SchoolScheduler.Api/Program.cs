@@ -36,13 +36,6 @@ app.MapGet("/classes", async (SchedulerDbContext db) =>
 
 app.MapPost("/classes", async (SchedulerDbContext db, ClassModel model) =>
 {
-    db.Classes.Add(model);
-    await db.SaveChangesAsync();
-    return Results.Created($"/classes/{model.Id}", model);
-});
-
-app.MapPost("/classes", async (SchedulerDbContext db, ClassModel model) =>
-{
     if (!MiniValidator.TryValidate(model, out var errors))
         return Results.ValidationProblem(errors);
 

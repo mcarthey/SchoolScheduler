@@ -1,3 +1,7 @@
+using SchoolScheduler.Data;
+
+namespace SchoolScheduler.Api;
+
 public static class DbSeeder
 {
     public static void Seed(SchedulerDbContext db)
