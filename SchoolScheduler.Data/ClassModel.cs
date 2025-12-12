@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+namespace SchoolScheduler.Data;
+
 public class ClassModel
 {
     public int Id { get; set; }
