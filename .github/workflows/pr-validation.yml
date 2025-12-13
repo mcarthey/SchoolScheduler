@@ -1,0 +1,84 @@
+name: PR Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate-pr:
+    name: Validate Pull Request
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Check PR title format
+      run: |
+        PR_TITLE="${{ github.event.pull_request.title }}"
+        if [[ ! "$PR_TITLE" =~ ^(feat|fix|docs|style|refactor|test|chore|perf)(\(.+\))?: ]]; then
+          echo "❌ PR title must follow conventional commits format"
+          echo "Examples: feat: add class scheduler, fix(api): validation bug"
+          exit 1
+        fi
+
+    - name: Check for test files in PR
+      run: |
+        CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+        echo "Changed files:"
+        echo "$CHANGED_FILES"
+
+        # Check if code files changed
+        CODE_CHANGED=$(echo "$CHANGED_FILES" | grep -E '\.(cs|ts)$' | grep -v '\.spec\.ts$' | grep -v 'Test\.cs$' || true)
+
+        if [ -n "$CODE_CHANGED" ]; then
+          # Check if tests were added/modified
+          TESTS_CHANGED=$(echo "$CHANGED_FILES" | grep -E '(\.spec\.ts$|Test\.cs$)' || true)
+
+          if [ -z "$TESTS_CHANGED" ]; then
+            echo "⚠️  Warning: Code files changed but no test files modified"
+            echo "Consider adding tests for your changes"
+            # Don't fail, just warn
+          else
+            echo "✅ Tests included in PR"
+          fi
+        fi
+
+    - name: Enforce branch naming
+      run: |
+        BRANCH_NAME="${{ github.head_ref }}"
+        if [[ ! "$BRANCH_NAME" =~ ^(feature|bugfix|hotfix|refactor|claude)\/ ]]; then
+          echo "⚠️  Warning: Branch name should follow pattern: feature/, bugfix/, hotfix/, refactor/, or claude/"
+          echo "Current branch: $BRANCH_NAME"
+        fi
+
+  size-check:
+    name: Check PR Size
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Check PR size
+      run: |
+        CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | wc -l)
+        ADDITIONS=$(git diff --numstat origin/${{ github.base_ref }}...HEAD | awk '{sum+=$1} END {print sum}')
+        DELETIONS=$(git diff --numstat origin/${{ github.base_ref }}...HEAD | awk '{sum+=$2} END {print sum}')
+
+        echo "📊 PR Statistics:"
+        echo "Files changed: $CHANGED_FILES"
+        echo "Lines added: $ADDITIONS"
+        echo "Lines removed: $DELETIONS"
+        echo "Net change: $((ADDITIONS - DELETIONS))"
+
+        if [ "$CHANGED_FILES" -gt 50 ]; then
+          echo "⚠️  Warning: Large PR with $CHANGED_FILES files"
+          echo "Consider breaking this into smaller PRs"
+        fi
+
+        if [ "$ADDITIONS" -gt 1000 ]; then
+          echo "⚠️  Warning: Large PR with $ADDITIONS lines added"
+        fi
