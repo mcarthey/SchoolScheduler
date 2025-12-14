@@ -1,10 +1,32 @@
+using System.IO;
 using Microsoft.EntityFrameworkCore;
+using MiniValidation;
+using SchoolScheduler.Api;
 using SchoolScheduler.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var dataSettingsPath = Path.Combine(AppContext.BaseDirectory,
+    $"Data.appsettings.{builder.Environment.EnvironmentName}.json");
+
+builder.Configuration.AddJsonFile(dataSettingsPath, optional: true, reloadOnChange: true);
+
+var useInMemory = builder.Environment.IsDevelopment()
+    || builder.Environment.IsEnvironment("Testing")
+    || builder.Configuration.GetValue<bool>("Database:UseInMemory");
+
 builder.Services.AddDbContext<SchedulerDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    if (useInMemory)
+    {
+        var dbName = builder.Configuration.GetValue<string>("Database:InMemoryDbName") ?? "SchedulerDevDb";
+        options.UseInMemoryDatabase(dbName);
+    }
+    else
+    {
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    }
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -47,9 +69,17 @@ app.MapPost("/classes", async (SchedulerDbContext db, ClassModel model) =>
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<SchedulerDbContext>();
-    db.Database.Migrate();
+    if (useInMemory)
+    {
+        db.Database.EnsureCreated();
+    }
+    else
+    {
+        db.Database.Migrate();
+    }
     DbSeeder.Seed(db);
 }
 
-
 app.Run();
+
+public partial class Program { }

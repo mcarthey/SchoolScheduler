@@ -15,4 +15,11 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Data.appsettings.Development.json</TargetPath>
+    </None>
+  </ItemGroup>
+
 </Project>
