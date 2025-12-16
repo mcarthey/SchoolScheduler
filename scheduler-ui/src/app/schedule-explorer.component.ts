@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges } from '@angular/core';
+import { Component, OnInit, OnChanges, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ClassModel, ClassService } from './class.service';
 import { ClassConflict, ConflictDetectorService } from './conflict-detector.service';
@@ -32,11 +32,14 @@ export class ScheduleExplorerComponent implements OnInit, OnChanges {
 
   constructor(
     private classService: ClassService,
-    private conflictDetector: ConflictDetectorService
+    private conflictDetector: ConflictDetectorService,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit() {
-    this.generateSchedules(); // Generate initial schedules even if no classes loaded yet
+    // Generate empty schedules first so UI isn't blank while loading
+    this.generateSchedules();
+    // Then load the actual classes
     this.loadClasses();
   }
 
@@ -47,9 +50,11 @@ export class ScheduleExplorerComponent implements OnInit, OnChanges {
   private loadClasses() {
     this.classService.getClasses().subscribe({
       next: (classes) => {
-        this.classes = classes;
-        this.conflicts = this.conflictDetector.detectConflicts(classes);
-        this.generateSchedules();
+        this.ngZone.run(() => {
+          this.classes = classes;
+          this.conflicts = this.conflictDetector.detectConflicts(classes);
+          this.generateSchedules();
+        });
       },
       error: (err) => console.error('Failed to load classes:', err)
     });
@@ -142,36 +147,6 @@ export class ScheduleExplorerComponent implements OnInit, OnChanges {
     return this.schedules.find((s) => s.id === this.selectedScheduleId);
   }
 
-  openNewClassModal() {
-    this.editingClass = {
-      name: '',
-      term: 'Semester',
-      durationType: 'Block',
-      startTime: '09:00',
-      daysOfWeek: [1, 3],
-      priority: 5
-    };
-    this.showEditModal = true;
-  }
-
-  onClassSaved(savedClass: ClassModel) {
-    const index = this.classes.findIndex(c => c.id === savedClass.id);
-    if (index >= 0) {
-      this.classes[index] = savedClass;
-    } else {
-      this.classes.push(savedClass);
-    }
-    this.conflicts = this.conflictDetector.detectConflicts(this.classes);
-    this.generateSchedules();
-    this.showEditModal = false;
-    this.editingClass = null;
-  }
-
-  onModalClosed() {
-    this.showEditModal = false;
-    this.editingClass = null;
-  }
-
   getScoreColor(score: number): string {
     if (score >= 90) return '#4CAF50'; // Green
     if (score >= 75) return '#FFC107'; // Amber
@@ -194,5 +169,33 @@ export class ScheduleExplorerComponent implements OnInit, OnChanges {
     if (priority >= 8) return '#4CAF50'; // Green
     if (priority >= 5) return '#2196F3'; // Blue
     return '#FF9800'; // Orange
+  }
+
+  openNewClassModal() {
+    this.editingClass = {
+      name: '',
+      term: 'Semester',
+      durationType: 'Block',
+      startTime: '09:00',
+      daysOfWeek: [1, 3],
+      priority: 5
+    };
+    this.showEditModal = true;
+  }
+
+  onClassSaved(savedClass: ClassModel) {
+    this.classService.saveClass(savedClass).subscribe({
+      next: () => {
+        this.showEditModal = false;
+        this.editingClass = null;
+        this.loadClasses(); // Reload to get updated list
+      },
+      error: (err) => console.error('Failed to save class:', err)
+    });
+  }
+
+  onModalClosed() {
+    this.showEditModal = false;
+    this.editingClass = null;
   }
 }

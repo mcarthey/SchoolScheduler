@@ -2,11 +2,13 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ScheduleExplorerComponent } from './schedule-explorer.component';
 import { ClassModel, ClassService } from './class.service';
 import { ClassConflict, ConflictDetectorService } from './conflict-detector.service';
+import { NgZone } from '@angular/core';
 
 describe('ScheduleExplorerComponent', () => {
   let component: ScheduleExplorerComponent;
   let mockClassService: any;
   let mockConflictDetector: any;
+  let mockNgZone: any;
 
   beforeEach(() => {
     mockClassService = {
@@ -16,7 +18,10 @@ describe('ScheduleExplorerComponent', () => {
     mockConflictDetector = {
       detectConflicts: vi.fn().mockReturnValue([])
     };
-    component = new ScheduleExplorerComponent(mockClassService, mockConflictDetector);
+    mockNgZone = {
+      run: vi.fn((callback) => callback())
+    };
+    component = new ScheduleExplorerComponent(mockClassService, mockConflictDetector, mockNgZone);
   });
 
   it('should create', () => {

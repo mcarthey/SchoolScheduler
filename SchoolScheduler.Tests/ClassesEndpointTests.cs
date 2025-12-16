@@ -44,9 +44,8 @@ public class ClassesEndpointTests
             Name = "Math 101",
             Term = "Semester",
             DurationType = "Block",
-            StartDate = DateTime.UtcNow.Date,
-            EndDate = DateTime.UtcNow.Date.AddMonths(3),
-            MinutesPerSession = 60,
+            StartTime = "10:00",
+            DaysOfWeek = new[] { 2, 4 }, // Tuesday, Thursday
             Priority = 3
         };
 

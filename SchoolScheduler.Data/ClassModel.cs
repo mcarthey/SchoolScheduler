@@ -16,13 +16,10 @@ public class ClassModel
     public string DurationType { get; set; } = "";
 
     [Required]
-    public DateTime StartDate { get; set; }
+    public string StartTime { get; set; } = "";
 
     [Required]
-    public DateTime EndDate { get; set; }
-
-    [Range(1, 600)]
-    public int MinutesPerSession { get; set; }
+    public int[] DaysOfWeek { get; set; } = Array.Empty<int>();
 
     [Range(1, 10)]
     public int Priority { get; set; }

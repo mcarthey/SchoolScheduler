@@ -1,10 +1,15 @@
 <div class="explorer-container">
   <div class="explorer-header">
-    <h2>Explore Schedule Options</h2>
-    <p class="description">
-      Compare different class scheduling combinations. (Note: This view is currently showing
-      stubbed/prototype schedules; backend optimization will integrate here.)
-    </p>
+    <div class="header-content">
+      <div>
+        <h2>Explore Schedule Options</h2>
+        <p class="description">
+          Compare different class scheduling combinations. (Note: This view is currently showing
+          stubbed/prototype schedules; backend optimization will integrate here.)
+        </p>
+      </div>
+      <button class="btn-primary" (click)="openNewClassModal()">+ Add Class</button>
+    </div>
   </div>
 
   <!-- Schedule Cards -->
@@ -87,4 +92,12 @@
       ✓ No scheduling conflicts in this option
     </div>
   </div>
+
+  <!-- Edit Modal -->
+  <app-edit-class-modal
+    *ngIf="showEditModal"
+    [class]="editingClass"
+    (saved)="onClassSaved($event)"
+    (closed)="onModalClosed()">
+  </app-edit-class-modal>
 </div>

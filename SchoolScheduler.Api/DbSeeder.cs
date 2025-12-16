@@ -13,9 +13,8 @@ public static class DbSeeder
                 Name = "English 10",
                 Term = "Semester",
                 DurationType = "Block",
-                StartDate = DateTime.Parse("2025-09-01"),
-                EndDate = DateTime.Parse("2026-01-20"),
-                MinutesPerSession = 80,
+                StartTime = "09:00",
+                DaysOfWeek = new[] { 1, 3, 5 }, // Monday, Wednesday, Friday
                 Priority = 5
             });
 
