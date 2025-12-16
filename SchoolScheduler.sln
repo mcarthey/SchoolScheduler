@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.1.11304.174 d18.0
+VisualStudioVersion = 18.1.11304.174
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchoolScheduler.Data", "SchoolScheduler.Data\SchoolScheduler.Data.csproj", "{B2770307-C1E5-4A33-AE8F-F3F9DABE2640}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchoolScheduler.Api", "SchoolScheduler.Api\SchoolScheduler.Api.csproj", "{F8C5CDCC-C02E-AC4D-E1FC-E83FE06FF784}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchoolScheduler.Tests", "SchoolScheduler.Tests\SchoolScheduler.Tests.csproj", "{4D4850D7-3E4A-4C3E-85CB-6E2D508F57DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchedulerUI", "scheduler-ui\SchedulerUI.csproj", "{A0315B06-085F-A06F-99C9-B689F2B6636F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,8 +57,23 @@ Global
 		{4D4850D7-3E4A-4C3E-85CB-6E2D508F57DB}.Release|x64.Build.0 = Release|Any CPU
 		{4D4850D7-3E4A-4C3E-85CB-6E2D508F57DB}.Release|x86.ActiveCfg = Release|Any CPU
 		{4D4850D7-3E4A-4C3E-85CB-6E2D508F57DB}.Release|x86.Build.0 = Release|Any CPU
+		{A0315B06-085F-A06F-99C9-B689F2B6636F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0315B06-085F-A06F-99C9-B689F2B6636F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0315B06-085F-A06F-99C9-B689F2B6636F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A0315B06-085F-A06F-99C9-B689F2B6636F}.Debug|x64.Build.0 = Debug|Any CPU
+		{A0315B06-085F-A06F-99C9-B689F2B6636F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A0315B06-085F-A06F-99C9-B689F2B6636F}.Debug|x86.Build.0 = Debug|Any CPU
+		{A0315B06-085F-A06F-99C9-B689F2B6636F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0315B06-085F-A06F-99C9-B689F2B6636F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0315B06-085F-A06F-99C9-B689F2B6636F}.Release|x64.ActiveCfg = Release|Any CPU
+		{A0315B06-085F-A06F-99C9-B689F2B6636F}.Release|x64.Build.0 = Release|Any CPU
+		{A0315B06-085F-A06F-99C9-B689F2B6636F}.Release|x86.ActiveCfg = Release|Any CPU
+		{A0315B06-085F-A06F-99C9-B689F2B6636F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {948B1FD9-B4C8-4A07-8E16-E166C561DD12}
 	EndGlobalSection
 EndGlobal

@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <SpaRoot>.</SpaRoot>
+    <DefaultItemExcludes>$(DefaultItemExcludes);node_modules\**;dist\**</DefaultItemExcludes>
+    <!-- Disable all default .NET behaviors -->
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <!-- Disable C# compilation -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Include all TypeScript/Angular source files for IntelliSense -->
+    <None Include="src\**\*.ts" />
+    <None Include="src\**\*.html" />
+    <None Include="src\**\*.scss" />
+    <None Include="package.json" />
+    <None Include="angular.json" />
+    <None Include="tsconfig.json" />
+    <None Include="vitest.config.ts" />
+    <None Include="README.md" />
+  </ItemGroup>
+
+  <Target Name="NpmInstall" BeforeTargets="CoreCompile" Condition="!Exists('node_modules')">
+    <!-- Run npm install if node_modules doesn't exist -->
+    <Message Importance="high" Text="Running npm install..." />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
+  </Target>
+
+  <!-- Override CoreCompile to do nothing for this Node.js project -->
+  <Target Name="CoreCompile">
+    <Message Importance="high" Text="SchedulerUI: Angular project files available for IntelliSense" />
+  </Target>
+
+  <!-- Start Angular dev server when debugging (F5) -->
+  <Target Name="RunNpmStart" AfterTargets="CoreCompile" Condition="'$(Configuration)' == 'Debug' And '$(DesignTimeBuild)' != 'true' And '$(BuildingInsideVisualStudio)' == 'true'">
+    <Message Importance="high" Text="Starting Angular dev server (npm start)..." />
+    <!-- Use PowerShell instead of cmd.exe to ensure npm is in PATH -->
+    <Exec WorkingDirectory="$(SpaRoot)" 
+          Command="powershell -NoProfile -Command &quot;Start-Process powershell -ArgumentList '-NoExit', '-Command', 'npm start'&quot;" 
+          ContinueOnError="true" />
+  </Target>
+
+  <!-- Build Angular bundle for production -->
+  <Target Name="NpmBuild" AfterTargets="CoreCompile" Condition="'$(Configuration)' == 'Release' And '$(DesignTimeBuild)' != 'true'">
+    <Message Importance="high" Text="Building Angular application..." />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build" />
+  </Target>
+
+</Project>

@@ -1,4 +1,3 @@
-using System.IO;
 using Microsoft.EntityFrameworkCore;
 using MiniValidation;
 using SchoolScheduler.Api;
@@ -6,10 +5,8 @@ using SchoolScheduler.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var dataSettingsPath = Path.Combine(AppContext.BaseDirectory,
-    $"Data.appsettings.{builder.Environment.EnvironmentName}.json");
-
-builder.Configuration.AddJsonFile(dataSettingsPath, optional: true, reloadOnChange: true);
+// Configuration is now automatically loaded from appsettings.{Environment}.json
+// Removed custom Data.appsettings file loading - configuration consolidated in API project
 
 var useInMemory = builder.Environment.IsDevelopment()
     || builder.Environment.IsEnvironment("Testing")
@@ -108,7 +105,6 @@ using (var scope = app.Services.CreateScope())
     DbSeeder.Seed(db);
 }
 
-// DELETE /classes/{id} - Delete a class
 app.MapDelete("/classes/{id}", async (int id, SchedulerDbContext db) =>
 {
     var classToDelete = await db.Classes.FindAsync(id);
