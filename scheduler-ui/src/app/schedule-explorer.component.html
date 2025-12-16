@@ -52,7 +52,10 @@
             </span>
           </td>
           <td>
-            <button class="btn-edit" (click)="editClass(cls)">Edit</button>
+            <div class="action-buttons">
+              <button class="btn-edit" (click)="editClass(cls)">Edit</button>
+              <button class="btn-delete" (click)="deleteClass(cls)">Delete</button>
+            </div>
           </td>
         </tr>
       </tbody>

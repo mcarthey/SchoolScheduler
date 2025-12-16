@@ -182,8 +182,27 @@ export class ScheduleExplorerComponent implements OnInit, OnChanges {
         this.editingClass = null;
         this.loadClasses(); // Reload to get updated list
       },
-      error: (err) => console.error('Failed to save class:', err)
+      error: (err) => {
+        console.error('Failed to save class:', err);
+        alert(`Failed to save class: ${err.error || err.message || 'Unknown error'}`);
+      }
     });
+  }
+
+  deleteClass(cls: ClassModel) {
+    if (!cls.id) return;
+    
+    if (confirm(`Are you sure you want to delete "${cls.name}"?`)) {
+      this.classService.deleteClass(cls.id).subscribe({
+        next: () => {
+          this.loadClasses(); // Reload to get updated list
+        },
+        error: (err) => {
+          console.error('Failed to delete class:', err);
+          alert(`Failed to delete class: ${err.error || err.message || 'Unknown error'}`);
+        }
+      });
+    }
   }
 
   onModalClosed() {

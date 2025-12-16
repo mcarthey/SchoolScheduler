@@ -61,9 +61,37 @@ app.MapPost("/classes", async (SchedulerDbContext db, ClassModel model) =>
     if (!MiniValidator.TryValidate(model, out var errors))
         return Results.ValidationProblem(errors);
 
-    db.Classes.Add(model);
-    await db.SaveChangesAsync();
-    return Results.Created($"/classes/{model.Id}", model);
+    if (model.Id > 0)
+    {
+        // Update existing class
+        var existing = await db.Classes.FindAsync(model.Id);
+        if (existing == null)
+            return Results.NotFound();
+        
+        existing.Name = model.Name;
+        existing.Term = model.Term;
+        existing.TermSlot = model.TermSlot;
+        existing.DurationType = model.DurationType;
+        existing.Priority = model.Priority;
+        
+        await db.SaveChangesAsync();
+        return Results.Ok(existing);
+    }
+    else
+    {
+        // Add new class - create new instance without using request ID
+        var newClass = new ClassModel
+        {
+            Name = model.Name,
+            Term = model.Term,
+            TermSlot = model.TermSlot,
+            DurationType = model.DurationType,
+            Priority = model.Priority
+        };
+        db.Classes.Add(newClass);
+        await db.SaveChangesAsync();
+        return Results.Created($"/classes/{newClass.Id}", newClass);
+    }
 });
 
 using (var scope = app.Services.CreateScope())
@@ -79,6 +107,18 @@ using (var scope = app.Services.CreateScope())
     }
     DbSeeder.Seed(db);
 }
+
+// DELETE /classes/{id} - Delete a class
+app.MapDelete("/classes/{id}", async (int id, SchedulerDbContext db) =>
+{
+    var classToDelete = await db.Classes.FindAsync(id);
+    if (classToDelete == null)
+        return Results.NotFound();
+    
+    db.Classes.Remove(classToDelete);
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+});
 
 app.Run();
 

@@ -30,15 +30,22 @@ export class ClassService {
 
   saveClass(model: ClassModel): Observable<ClassModel> {
     // If it has an id, it's an update; otherwise, it's new
-    return model.id
-      ? this.updateClass(model)
-      : this.addClass(model);
+    if (model.id && model.id > 0) {
+      return this.updateClass(model);
+    } else {
+      // Remove ID for new classes to prevent duplicate key errors
+      const { id, ...modelWithoutId } = model;
+      return this.addClass(modelWithoutId as ClassModel);
+    }
   }
 
   updateClass(model: ClassModel): Observable<ClassModel> {
-    // TODO: Implement on backend when PUT /classes/{id} is added
-    // For now, simulate by POST (will be replaced with proper PATCH/PUT)
+    // Use POST endpoint which now handles both create and update
     return this.http.post<ClassModel>(this.apiUrl, this.serializeForBackend(model));
+  }
+
+  deleteClass(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
   // No serialization needed - all fields are persisted

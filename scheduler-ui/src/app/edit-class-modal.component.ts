@@ -86,9 +86,19 @@ export class EditClassModalComponent implements OnInit {
     }
 
     this.isSaving = true;
+    
+    // Clean form data - remove undefined/null optional fields
+    const cleanForm = { ...this.form };
+    if (!cleanForm.periodSlot) {
+      delete cleanForm.periodSlot;
+    }
+    if (!cleanForm.subPeriod) {
+      delete cleanForm.subPeriod;
+    }
+    
     const operation = this.form.id
-      ? this.classService.updateClass(this.form)
-      : this.classService.addClass(this.form);
+      ? this.classService.updateClass(cleanForm)
+      : this.classService.addClass(cleanForm);
 
     operation.subscribe({
       next: (savedClass) => {
