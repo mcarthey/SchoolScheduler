@@ -82,8 +82,5 @@ using (var scope = app.Services.CreateScope())
 
 app.Run();
 
-<<<<<<< HEAD
-=======
 // Make Program accessible to tests
->>>>>>> edfbb05e94a3859613ce9db697d642f559024945
 public partial class Program { }
