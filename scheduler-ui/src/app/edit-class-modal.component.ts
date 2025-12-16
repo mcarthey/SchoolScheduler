@@ -20,6 +20,7 @@ export class EditClassModalComponent implements OnInit {
     name: '',
     term: 'Semester',
     termSlot: 'S1',
+    periodSlot: 'A',
     durationType: 'Block',
     priority: 5
   };

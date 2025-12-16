@@ -7,8 +7,10 @@ export interface ClassModel {
   id?: number;
   name: string;
   term: string;                    // "Semester", "Half-Semester", or "Full-Year"
-  termSlot: string;                // "S1", "S2", "Q1", "Q2", "Q3", "Q4", "FullYear"
-  durationType: string;            // "Block" (1 hour) or "Skinny" (45 minutes)
+  termSlot: string;                // "S1", "S2", "Q1", "Q2", "Q3", "Q4", "FullYear" (when during the year)
+  periodSlot?: string;             // "A", "B", "C", "D", "Pride", "Lunch" (which daily period) - optional for now
+  durationType: string;            // "Block" (full period) or "Skinny" (half period)
+  subPeriod?: number;              // 1 or 2 (for Skinny classes only - which half)
   priority: number;                // 1-10 scheduling priority
 }
 

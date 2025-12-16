@@ -168,6 +168,7 @@ export class ScheduleExplorerComponent implements OnInit, OnChanges {
       name: '',
       term: 'Semester',
       termSlot: 'S1',
+      periodSlot: 'A',
       durationType: 'Block',
       priority: 5
     };
