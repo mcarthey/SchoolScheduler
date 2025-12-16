@@ -36,6 +36,7 @@ export class ScheduleExplorerComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit() {
+    this.generateSchedules(); // Generate initial schedules even if no classes loaded yet
     this.loadClasses();
   }
 
