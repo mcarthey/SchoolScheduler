@@ -1,0 +1,238 @@
+<div class="course-planner">
+  <header class="planner-header">
+    <h1>📚 OHS 4-Year Course Planner</h1>
+    <p class="subtitle">Plan your entire high school career</p>
+  </header>
+
+  <!-- Student Info -->
+  <section class="student-info">
+    <div class="info-row">
+      <div class="form-group">
+        <label for="studentName">Your Name</label>
+        <input 
+          type="text" 
+          id="studentName" 
+          [(ngModel)]="studentName" 
+          placeholder="Enter your name"
+          class="input-field">
+      </div>
+      <div class="form-group">
+        <label for="currentGrade">Current Grade</label>
+        <select 
+          id="currentGrade" 
+          [(ngModel)]="currentGrade"
+          class="input-field">
+          <option [value]="9">9th Grade (Freshman)</option>
+          <option [value]="10">10th Grade (Sophomore)</option>
+          <option [value]="11">11th Grade (Junior)</option>
+          <option [value]="12">12th Grade (Senior)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="schoolYear">School Year</label>
+        <input 
+          type="text" 
+          id="schoolYear" 
+          [(ngModel)]="schoolYear" 
+          class="input-field">
+      </div>
+      <div class="form-group total-credits">
+        <label>Total Credits (All Years)</label>
+        <div class="credit-display">
+          {{ getTotalCreditsAllYears() }} / 24
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Year Tabs -->
+  <section class="year-tabs">
+    <button 
+      *ngFor="let year of yearPlans; let i = index"
+      class="year-tab"
+      [class.active]="currentYearIndex === i"
+      [ngClass]="getYearStatusClass(year)"
+      (click)="selectYear(i)">
+      <span class="year-name">{{ year.gradeName }}</span>
+      <span class="year-grade">Grade {{ year.gradeLevel }}</span>
+      <span class="year-credits">{{ year.totalCredits }} credits</span>
+      <span class="year-courses">{{ year.selectedCourses.length }} courses</span>
+    </button>
+  </section>
+
+  <div class="main-content">
+    <!-- Course Catalog - NOW WIDER -->
+    <section class="course-catalog">
+      <div class="catalog-header">
+        <h2>Available Courses for {{ currentYear.gradeName}} Year</h2>
+        <div class="filters">
+          <div class="filter-group">
+            <label>Department</label>
+            <select [(ngModel)]="selectedDepartment" (change)="applyFilters()" class="filter-select">
+              <option *ngFor="let dept of departments" [value]="dept">{{ dept }}</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Search</label>
+            <input 
+              type="text" 
+              [(ngModel)]="searchText" 
+              (input)="applyFilters()"
+              placeholder="Search courses..."
+              class="filter-input">
+          </div>
+          <div class="filter-info">
+            Showing {{ filteredCourses.length }} courses
+          </div>
+        </div>
+      </div>
+
+      <div class="course-grid" *ngIf="!loading && filteredCourses.length > 0">
+        <div 
+          *ngFor="let course of filteredCourses" 
+          class="course-card"
+          [class.selected]="isSelected(course)"
+          [ngClass]="getDepartmentColor(course.department)"
+          (click)="toggleCourse(course)">
+          
+          <div class="course-header">
+            <div>
+              <h3>{{ course.name }}</h3>
+              <span class="course-code" *ngIf="course.courseCode">{{ course.courseCode }}</span>
+            </div>
+            <div class="badges">
+              <span class="badge" [ngClass]="getCourseBadgeClass(course)">
+                {{ course.isAdvanced ? 'AP/Honors' : course.blockType }}
+              </span>
+            </div>
+          </div>
+
+          <div class="course-details">
+            <span class="detail-badge">{{ course.department }}</span>
+            <span class="detail-badge">{{ course.duration }}</span>
+            <span class="detail-badge credits">{{ course.credits }} cr</span>
+            <span class="detail-badge">{{ getWorkloadStars(course.workloadLevel) }}</span>
+          </div>
+
+          <p class="course-description" *ngIf="course.description">
+            {{ course.description }}
+          </p>
+
+          <div class="selection-check" *ngIf="isSelected(course)">
+            ✓
+          </div>
+        </div>
+
+        <div *ngIf="filteredCourses.length === 0" class="no-courses">
+          <p>No courses available for grade {{ currentGradeLevel }}</p>
+          <p class="hint">Try changing the filter or selecting a different year</p>
+        </div>
+      </div>
+
+      <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading courses from API...</p>
+        <p class="api-info">Connecting to https://localhost:7217/api/courses</p>
+      </div>
+
+      <div *ngIf="!loading && filteredCourses.length === 0 && courses.length === 0" class="no-courses error">
+        <h3>⚠️ No Courses Found</h3>
+        <p>The API returned no courses. This could mean:</p>
+        <ul>
+          <li>The API is not running (start with <code>dotnet run</code>)</li>
+          <li>The database wasn't seeded properly</li>
+          <li>There's a connection error</li>
+        </ul>
+        <p class="hint">Check the browser console (F12) for error messages</p>
+        <button (click)="loadCourses()" class="btn btn-primary">Retry</button>
+      </div>
+
+      <div *ngIf="!loading && filteredCourses.length === 0 && courses.length > 0" class="no-courses">
+        <p>No courses available for grade {{ currentGradeLevel }}</p>
+        <p class="hint">Try changing the filter or selecting a different year</p>
+        <button (click)="selectedDepartment = 'All'; searchText = ''; applyFilters()" class="btn btn-secondary">
+          Clear Filters
+        </button>
+      </div>
+    </section>
+
+    <!-- Right Sidebar - Graduation Tracker & Actions -->
+    <aside class="sidebar">
+      <!-- Graduation Tracker -->
+      <app-graduation-tracker 
+        *ngIf="graduationRequirements && validationResult"
+        [requirements]="graduationRequirements"
+        [creditsByDepartment]="getCreditsByDepartment()"
+        [totalCredits]="getTotalCreditsAllYears()"
+        [gradeLevel]="currentGrade"
+        [showCollegeTips]="currentGrade >= 11">
+      </app-graduation-tracker>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <h3>Actions</h3>
+        <button (click)="validateAllYears()" class="btn btn-primary">
+          🔍 Validate 4-Year Plan
+        </button>
+        <button (click)="savePlan()" class="btn btn-success">
+          💾 Save Plan
+        </button>
+        <button (click)="clearYear(currentYearIndex)" class="btn btn-warning">
+          🗑️ Clear {{ currentYear.gradeName }} Year
+        </button>
+        <button (click)="clearAll()" class="btn btn-danger">
+          ⚠️ Clear All Years
+        </button>
+      </div>
+
+      <!-- Selected Courses Summary -->
+      <div class="year-summary">
+        <h3>All Years Summary</h3>
+        <div *ngFor="let year of yearPlans" class="year-block">
+          <div class="year-header">
+            <strong>{{ year.gradeName }} ({{ year.gradeLevel }}th)</strong>
+            <span>{{ year.totalCredits }} credits</span>
+          </div>
+          <div class="course-chips">
+            <span 
+              *ngFor="let course of year.selectedCourses" 
+              class="course-chip"
+              (click)="removeCourseFromYear(yearPlans.indexOf(year), course)">
+              {{ course.name }}
+              <span class="remove-chip">×</span>
+            </span>
+            <span *ngIf="year.selectedCourses.length === 0" class="empty-year">
+              No courses selected
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Validation Results -->
+      <div *ngIf="showValidation && validationResult" class="validation-results">
+        <h3>Validation Results</h3>
+        
+        <div class="validation-status" [class.valid]="validationResult.isValid" [class.invalid]="!validationResult.isValid">
+          <strong *ngIf="validationResult.isValid">✓ Plan is Valid</strong>
+          <strong *ngIf="!validationResult.isValid">⚠ Plan has Issues</strong>
+        </div>
+
+        <!-- Errors -->
+        <div *ngIf="validationResult.errors.length > 0" class="errors">
+          <h4>❌ Errors</h4>
+          <ul>
+            <li *ngFor="let error of validationResult.errors">{{ error }}</li>
+          </ul>
+        </div>
+
+        <!-- Warnings -->
+        <div *ngIf="validationResult.warnings.length > 0" class="warnings">
+          <h4>⚠️ Warnings</h4>
+          <ul>
+            <li *ngFor="let warning of validationResult.warnings">{{ warning }}</li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>

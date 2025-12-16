@@ -6,6 +6,7 @@ public static class DbSeeder
 {
     public static void Seed(SchedulerDbContext db)
     {
+        // Seed legacy ClassModel data
         if (!db.Classes.Any())
         {
             db.Classes.Add(new ClassModel
@@ -19,5 +20,8 @@ public static class DbSeeder
 
             db.SaveChanges();
         }
+
+        // Seed new Course catalog
+        CourseSeeder.SeedCourses(db);
     }
 }

@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
-import { ScheduleExplorerComponent } from './schedule-explorer.component';
+import { CoursePlannerComponent } from './course-planner.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [HttpClientModule, ScheduleExplorerComponent],
-  template: `<app-schedule-explorer></app-schedule-explorer>`,
+  imports: [HttpClientModule, CoursePlannerComponent],
+  template: `<app-course-planner></app-course-planner>`,
   styles: [
     `
       :host {

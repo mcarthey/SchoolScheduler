@@ -23,10 +23,8 @@ public class ClassModelTests
         {
             Name = "English 10",
             Term = "Semester",
+            TermSlot = "S1",
             DurationType = "Block",
-            StartDate = DateTime.Parse("2025-09-01"),
-            EndDate = DateTime.Parse("2026-01-20"),
-            MinutesPerSession = 80,
             Priority = 5
         };
 
@@ -39,7 +37,7 @@ public class ClassModelTests
 
     [Theory]
     [InlineData("")]
-    [InlineData(null)]
+    [InlineData(null!)]
     public void ClassModel_WithInvalidName_FailsValidation(string invalidName)
     {
         // Arrange
@@ -47,10 +45,8 @@ public class ClassModelTests
         {
             Name = invalidName!,
             Term = "Semester",
+            TermSlot = "S1",
             DurationType = "Block",
-            StartDate = DateTime.Parse("2025-09-01"),
-            EndDate = DateTime.Parse("2026-01-20"),
-            MinutesPerSession = 80,
             Priority = 5
         };
 
@@ -64,32 +60,6 @@ public class ClassModelTests
 
     [Theory]
     [InlineData(0)]
-    [InlineData(601)]
-    [InlineData(-1)]
-    public void ClassModel_WithInvalidMinutes_FailsValidation(int invalidMinutes)
-    {
-        // Arrange
-        var model = new ClassModel
-        {
-            Name = "Math 10",
-            Term = "Semester",
-            DurationType = "Block",
-            StartDate = DateTime.Parse("2025-09-01"),
-            EndDate = DateTime.Parse("2026-01-20"),
-            MinutesPerSession = invalidMinutes,
-            Priority = 5
-        };
-
-        // Act
-        var results = ValidateModel(model);
-
-        // Assert
-        results.Should().NotBeEmpty();
-        results.Should().Contain(r => r.MemberNames.Contains("MinutesPerSession"));
-    }
-
-    [Theory]
-    [InlineData(0)]
     [InlineData(11)]
     [InlineData(-1)]
     public void ClassModel_WithInvalidPriority_FailsValidation(int invalidPriority)
@@ -99,10 +69,8 @@ public class ClassModelTests
         {
             Name = "Science 10",
             Term = "Semester",
+            TermSlot = "S1",
             DurationType = "Block",
-            StartDate = DateTime.Parse("2025-09-01"),
-            EndDate = DateTime.Parse("2026-01-20"),
-            MinutesPerSession = 80,
             Priority = invalidPriority
         };
 
@@ -122,10 +90,8 @@ public class ClassModelTests
         {
             Name = new string('A', 201), // MaxLength is 200
             Term = "Semester",
+            TermSlot = "S1",
             DurationType = "Block",
-            StartDate = DateTime.Parse("2025-09-01"),
-            EndDate = DateTime.Parse("2026-01-20"),
-            MinutesPerSession = 80,
             Priority = 5
         };
 
@@ -135,5 +101,25 @@ public class ClassModelTests
         // Assert
         results.Should().NotBeEmpty();
         results.Should().Contain(r => r.MemberNames.Contains("Name"));
+    }
+
+    [Fact]
+    public void ClassModel_WithMissingRequiredFields_FailsValidation()
+    {
+        // Arrange
+        var model = new ClassModel
+        {
+            Name = "Test Class"
+            // Missing Term, TermSlot, DurationType
+        };
+
+        // Act
+        var results = ValidateModel(model);
+
+        // Assert
+        results.Should().NotBeEmpty();
+        results.Should().Contain(r => r.MemberNames.Contains("Term"));
+        results.Should().Contain(r => r.MemberNames.Contains("TermSlot"));
+        results.Should().Contain(r => r.MemberNames.Contains("DurationType"));
     }
 }

@@ -1,8 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using SchoolScheduler.Data;
 using Xunit;
 using FluentAssertions;
@@ -11,153 +9,129 @@ namespace SchoolScheduler.Api.Tests;
 
 public class ClassEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
 {
-    private readonly WebApplicationFactory<Program> _factory;
+    private readonly HttpClient _client;
 
     public ClassEndpointsTests(WebApplicationFactory<Program> factory)
     {
-        _factory = factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureServices(services =>
-            {
-                // Remove the real database
-                var descriptor = services.SingleOrDefault(
-                    d => d.ServiceType == typeof(DbContextOptions<SchedulerDbContext>));
-
-                if (descriptor != null)
-                {
-                    services.Remove(descriptor);
-                }
-
-                // Add in-memory database for testing
-                services.AddDbContext<SchedulerDbContext>(options =>
-                {
-                    options.UseInMemoryDatabase("TestDb");
-                });
-            });
-        });
+        _client = factory.CreateClient();
     }
 
     [Fact]
-    public async Task GetClasses_ReturnsSuccessStatusCode()
+    public async Task GetClasses_ReturnsSuccessAndClasses()
     {
-        // Arrange
-        var client = _factory.CreateClient();
-
         // Act
-        var response = await client.GetAsync("/classes");
-
+        var response = await _client.GetAsync("/classes");
+        
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-    }
-
-    [Fact]
-    public async Task GetClasses_ReturnsListOfClasses()
-    {
-        // Arrange
-        var client = _factory.CreateClient();
-
-        // Act
-        var classes = await client.GetFromJsonAsync<List<ClassModel>>("/classes");
-
-        // Assert
+        var classes = await response.Content.ReadFromJsonAsync<List<ClassModel>>();
         classes.Should().NotBeNull();
-        classes.Should().BeOfType<List<ClassModel>>();
+        classes.Should().NotBeEmpty();
     }
 
     [Fact]
-    public async Task PostClass_WithValidData_ReturnsCreated()
+    public async Task PostClass_WithValidModel_ReturnsCreated()
     {
         // Arrange
-        var client = _factory.CreateClient();
         var newClass = new ClassModel
         {
-            Name = "Test Class",
+            Name = "Math 11",
             Term = "Semester",
+            TermSlot = "S2",
             DurationType = "Block",
-            StartDate = DateTime.Parse("2025-09-01"),
-            EndDate = DateTime.Parse("2026-01-20"),
-            MinutesPerSession = 90,
             Priority = 7
         };
 
         // Act
-        var response = await client.PostAsJsonAsync("/classes", newClass);
-
+        var response = await _client.PostAsJsonAsync("/classes", newClass);
+        
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
-
         var createdClass = await response.Content.ReadFromJsonAsync<ClassModel>();
         createdClass.Should().NotBeNull();
-        createdClass!.Name.Should().Be("Test Class");
-        createdClass.Id.Should().BeGreaterThan(0);
+        createdClass!.Id.Should().BeGreaterThan(0);
+        createdClass.Name.Should().Be("Math 11");
     }
 
     [Fact]
-    public async Task PostClass_WithInvalidData_ReturnsBadRequest()
+    public async Task PostClass_WithInvalidModel_ReturnsBadRequest()
     {
-        // Arrange
-        var client = _factory.CreateClient();
+        // Arrange - Missing required fields
         var invalidClass = new ClassModel
         {
-            Name = "", // Invalid: required field
+            Name = "", // Invalid: empty name
             Term = "Semester",
+            TermSlot = "S1",
             DurationType = "Block",
-            StartDate = DateTime.Parse("2025-09-01"),
-            EndDate = DateTime.Parse("2026-01-20"),
-            MinutesPerSession = 90,
-            Priority = 7
+            Priority = 5
         };
 
         // Act
-        var response = await client.PostAsJsonAsync("/classes", invalidClass);
-
+        var response = await _client.PostAsJsonAsync("/classes", invalidClass);
+        
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task PostClass_WithMinutesOutOfRange_ReturnsBadRequest()
+    public async Task DeleteClass_WithValidId_ReturnsNoContent()
     {
-        // Arrange
-        var client = _factory.CreateClient();
-        var invalidClass = new ClassModel
+        // Arrange - Create a class first
+        var newClass = new ClassModel
         {
-            Name = "Test Class",
+            Name = "Delete Test",
             Term = "Semester",
+            TermSlot = "S1",
             DurationType = "Block",
-            StartDate = DateTime.Parse("2025-09-01"),
-            EndDate = DateTime.Parse("2026-01-20"),
-            MinutesPerSession = 0, // Invalid: must be 1-600
-            Priority = 7
+            Priority = 5
         };
 
-        // Act
-        var response = await client.PostAsJsonAsync("/classes", invalidClass);
+        var createResponse = await _client.PostAsJsonAsync("/classes", newClass);
+        var createdClass = await createResponse.Content.ReadFromJsonAsync<ClassModel>();
 
+        // Act
+        var deleteResponse = await _client.DeleteAsync($"/classes/{createdClass!.Id}");
+        
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        deleteResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
 
     [Fact]
-    public async Task PostClass_WithPriorityOutOfRange_ReturnsBadRequest()
+    public async Task DeleteClass_WithInvalidId_ReturnsNotFound()
     {
-        // Arrange
-        var client = _factory.CreateClient();
-        var invalidClass = new ClassModel
+        // Act
+        var response = await _client.DeleteAsync("/classes/99999");
+        
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task PostClass_UpdateExisting_ReturnsOk()
+    {
+        // Arrange - Create a class first
+        var newClass = new ClassModel
         {
-            Name = "Test Class",
+            Name = "Update Test",
             Term = "Semester",
+            TermSlot = "S1",
             DurationType = "Block",
-            StartDate = DateTime.Parse("2025-09-01"),
-            EndDate = DateTime.Parse("2026-01-20"),
-            MinutesPerSession = 90,
-            Priority = 11 // Invalid: must be 1-10
+            Priority = 5
         };
 
-        // Act
-        var response = await client.PostAsJsonAsync("/classes", invalidClass);
+        var createResponse = await _client.PostAsJsonAsync("/classes", newClass);
+        var createdClass = await createResponse.Content.ReadFromJsonAsync<ClassModel>();
 
+        // Act - Update the class
+        createdClass!.Name = "Updated Name";
+        createdClass.Priority = 8;
+        var updateResponse = await _client.PostAsJsonAsync("/classes", createdClass);
+        
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        updateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var updatedClass = await updateResponse.Content.ReadFromJsonAsync<ClassModel>();
+        updatedClass.Should().NotBeNull();
+        updatedClass!.Name.Should().Be("Updated Name");
+        updatedClass.Priority.Should().Be(8);
     }
 }
