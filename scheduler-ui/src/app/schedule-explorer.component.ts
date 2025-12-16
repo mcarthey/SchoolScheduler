@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, NgZone } from '@angular/core';
+import { Component, OnInit, OnChanges, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ClassModel, ClassService } from './class.service';
 import { ClassConflict, ConflictDetectorService } from './conflict-detector.service';
@@ -33,7 +33,8 @@ export class ScheduleExplorerComponent implements OnInit, OnChanges {
   constructor(
     private classService: ClassService,
     private conflictDetector: ConflictDetectorService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -54,6 +55,7 @@ export class ScheduleExplorerComponent implements OnInit, OnChanges {
           this.classes = classes;
           this.conflicts = this.conflictDetector.detectConflicts(classes);
           this.generateSchedules();
+          this.cdr.markForCheck();
         });
       },
       error: (err) => console.error('Failed to load classes:', err)
