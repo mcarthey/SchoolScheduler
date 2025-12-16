@@ -2,95 +2,61 @@
   <div class="explorer-header">
     <div class="header-content">
       <div>
-        <h2>Explore Schedule Options</h2>
+        <h2>School Schedule</h2>
         <p class="description">
-          Compare different class scheduling combinations. (Note: This view is currently showing
-          stubbed/prototype schedules; backend optimization will integrate here.)
+          Visual calendar view of your classes. Click a class to edit it.
         </p>
       </div>
       <button class="btn-primary" (click)="openNewClassModal()">+ Add Class</button>
     </div>
   </div>
 
-  <!-- Schedule Cards -->
-  <div class="schedule-cards">
-    <div
-      *ngFor="let schedule of schedules"
-      [class.active]="selectedScheduleId === schedule.id"
-      (click)="selectSchedule(schedule.id)"
-      class="schedule-card"
-    >
-      <div class="card-header">
-        <h3>{{ schedule.name }}</h3>
-        <div class="score-badge" [style.backgroundColor]="getScoreColor(schedule.score)">
-          {{ schedule.score }}%
-        </div>
-      </div>
-      <p class="card-description">{{ schedule.description }}</p>
-      <div class="card-meta">
-        <span class="meta-item">
-          📚 {{ schedule.classes.length }} classes
-        </span>
-        <span class="meta-item">
-          ⚠️ {{ schedule.conflicts.length }} conflicts
-        </span>
-        <span class="score-label">{{ getScoreLabel(schedule.score) }}</span>
-      </div>
-    </div>
+  <!-- Calendar Grid View -->
+  <div class="calendar-view">
+    <app-calendar-grid 
+      [classes]="classes"
+      [conflicts]="convertConflicts()"
+      (classClicked)="editClass($event)">
+    </app-calendar-grid>
   </div>
 
-  <!-- Selected Schedule Details -->
-  <div *ngIf="getSelectedSchedule() as schedule" class="schedule-details">
-    <h3>{{ schedule.name }} — Details</h3>
-
-    <!-- Class List -->
-    <div class="classes-section">
-      <h4>Classes ({{ schedule.classes.length }})</h4>
-      <div *ngIf="schedule.classes.length === 0" class="empty-state">
-        No classes in this schedule
-      </div>
-      <table *ngIf="schedule.classes.length > 0" class="classes-table">
-        <thead>
-          <tr>
-            <th>Class Name</th>
-            <th>Days</th>
-            <th>Time</th>
-            <th>Term</th>
-            <th>Priority</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let cls of schedule.classes">
-            <td><strong>{{ cls.name }}</strong></td>
-            <td>{{ formatDays(cls.daysOfWeek) }}</td>
-            <td>{{ cls.startTime }}</td>
-            <td>{{ cls.term }}</td>
-            <td>
-              <span
-                class="priority-badge"
-                [style.backgroundColor]="getPriorityColor(cls.priority)"
-              >
-                {{ cls.priority }}
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <!-- Class List Section -->
+  <div class="classes-section">
+    <h3>All Classes ({{ classes.length }})</h3>
+    <div *ngIf="classes.length === 0" class="empty-state">
+      No classes yet. Click "+ Add Class" to get started!
     </div>
-
-    <!-- Conflicts -->
-    <div *ngIf="schedule.conflicts.length > 0" class="conflicts-section">
-      <h4>Conflicts ({{ schedule.conflicts.length }})</h4>
-      <div *ngFor="let conflict of schedule.conflicts" class="conflict-item">
-        <strong>{{ conflict.className1 }}</strong> ↔ <strong>{{ conflict.className2 }}</strong>
-        <p class="conflict-reason">{{ conflict.reason }}</p>
-      </div>
-    </div>
-
-    <!-- No Conflicts -->
-    <div *ngIf="schedule.conflicts.length === 0" class="success-message">
-      ✓ No scheduling conflicts in this option
-    </div>
+    <table *ngIf="classes.length > 0" class="classes-table">
+      <thead>
+        <tr>
+          <th>Class Name</th>
+          <th>Term Slot</th>
+          <th>Term</th>
+          <th>Duration</th>
+          <th>Priority</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let cls of classes">
+          <td><strong>{{ cls.name }}</strong></td>
+          <td>{{ cls.termSlot }}</td>
+          <td>{{ cls.term }}</td>
+          <td>{{ cls.durationType }}</td>
+          <td>
+            <span
+              class="priority-badge"
+              [style.backgroundColor]="getPriorityColor(cls.priority)"
+            >
+              {{ cls.priority }}
+            </span>
+          </td>
+          <td>
+            <button class="btn-edit" (click)="editClass(cls)">Edit</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <!-- Edit Modal -->

@@ -29,12 +29,13 @@
         <select
           id="term"
           [(ngModel)]="form.term"
+          (change)="onTermChange()"
           name="term"
           class="form-input"
         >
-          <option value="Semester">Semester</option>
-          <option value="Half">Half-Semester</option>
-          <option value="Year">Full Year</option>
+          <option *ngFor="let termName of terms | keyvalue" [value]="termName.key">
+            {{ termName.value.name }}
+          </option>
         </select>
       </div>
       <div class="form-group">
@@ -45,43 +46,28 @@
           name="durationType"
           class="form-input"
         >
-          <option value="Block">Block</option>
-          <option value="Skinny">Skinny</option>
+          <option *ngFor="let durType of durationTypes | keyvalue" [value]="durType.key">
+            {{ durType.value.name }}
+          </option>
         </select>
       </div>
     </div>
 
-    <!-- Meeting Days -->
+    <!-- Term Slot Selection -->
     <div class="form-group">
-      <label>Meeting Days *</label>
-      <div class="day-selector">
-        <button
-          *ngFor="let day of dayLabels"
-          (click)="toggleDay(day.num)"
-          [class.selected]="isDaySelected(day.num)"
-          class="day-btn"
-        >
-          {{ day.label.substring(0, 3) }}
-        </button>
-      </div>
-      <span *ngIf="errors['daysOfWeek']" class="error-message">{{ errors['daysOfWeek'] }}</span>
-    </div>
-
-    <!-- Meeting Time -->
-    <div class="form-row">
-      <div class="form-group">
-        <label for="startTime">Start Time (HH:mm) *</label>
-        <input
-          id="startTime"
-          type="time"
-          [(ngModel)]="form.startTime"
-          name="startTime"
-          class="form-input"
-          [class.error]="errors['startTime']"
-        />
-        <span *ngIf="errors['startTime']" class="error-message">{{ errors['startTime'] }}</span>
-      </div>
-
+      <label for="termSlot">Term Slot *</label>
+      <select
+        id="termSlot"
+        [(ngModel)]="form.termSlot"
+        name="termSlot"
+        class="form-input"
+        [class.error]="errors['termSlot']"
+      >
+        <option *ngFor="let slot of availableTermSlots" [value]="slot">
+          {{ slot }}
+        </option>
+      </select>
+      <span *ngIf="errors['termSlot']" class="error-message">{{ errors['termSlot'] }}</span>
     </div>
 
     <!-- Priority -->

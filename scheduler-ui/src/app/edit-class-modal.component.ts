@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ClassModel, ClassService } from './class.service';
+import { TERMS, DURATION_TYPES, getTermSlots } from './scheduler-config';
 
 @Component({
   selector: 'app-edit-class-modal',
@@ -18,48 +19,42 @@ export class EditClassModalComponent implements OnInit {
   form: ClassModel = {
     name: '',
     term: 'Semester',
+    termSlot: 'S1',
     durationType: 'Block',
-    startTime: '09:00',
-    daysOfWeek: [1, 3],
     priority: 5
   };
 
   errors: { [key: string]: string } = {};
   isSaving = false;
 
-  dayLabels = [
-    { num: 0, label: 'Sunday' },
-    { num: 1, label: 'Monday' },
-    { num: 2, label: 'Tuesday' },
-    { num: 3, label: 'Wednesday' },
-    { num: 4, label: 'Thursday' },
-    { num: 5, label: 'Friday' },
-    { num: 6, label: 'Saturday' }
-  ];
+  // Configuration from scheduler-config
+  terms = TERMS;
+  durationTypes = DURATION_TYPES;
+  availableTermSlots: string[] = ['S1', 'S2'];
 
   constructor(private classService: ClassService) {}
 
   ngOnInit() {
     if (this.class) {
       this.form = { ...this.class };
+      this.updateAvailableSlots();
     }
   }
 
-  toggleDay(dayNum: number) {
-    if (!this.form.daysOfWeek) {
-      this.form.daysOfWeek = [];
+  onTermChange() {
+    this.updateAvailableSlots();
+    // Reset term slot to first available
+    if (this.availableTermSlots.length > 0) {
+      this.form.termSlot = this.availableTermSlots[0];
     }
-    const index = this.form.daysOfWeek.indexOf(dayNum);
-    if (index >= 0) {
-      this.form.daysOfWeek.splice(index, 1);
-    } else {
-      this.form.daysOfWeek.push(dayNum);
-      this.form.daysOfWeek.sort();
-    }
+  }
+
+  private updateAvailableSlots() {
+    this.availableTermSlots = getTermSlots(this.form.term);
   }
 
   isDaySelected(dayNum: number): boolean {
-    return this.form.daysOfWeek?.includes(dayNum) || false;
+    return false;  // Not used with new term slot approach
   }
 
   validate(): boolean {
@@ -68,11 +63,8 @@ export class EditClassModalComponent implements OnInit {
     if (!this.form.name || this.form.name.trim() === '') {
       this.errors['name'] = 'Class name is required';
     }
-    if (!this.form.startTime) {
-      this.errors['startTime'] = 'Start time is required';
-    }
-    if (!this.form.daysOfWeek || this.form.daysOfWeek.length === 0) {
-      this.errors['daysOfWeek'] = 'Select at least one meeting day';
+    if (!this.form.termSlot) {
+      this.errors['termSlot'] = 'Term slot is required';
     }
     if (!this.form.term) {
       this.errors['term'] = 'Term is required';

@@ -43,9 +43,8 @@ public class ClassesEndpointTests
         {
             Name = "Math 101",
             Term = "Semester",
-            DurationType = "Block",
-            StartTime = "10:00",
-            DaysOfWeek = new[] { 2, 4 }, // Tuesday, Thursday
+            TermSlot = "S2",
+            DurationType = "Skinny",
             Priority = 3
         };
 

@@ -1,0 +1,243 @@
+.calendar-grid-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+/* Legend */
+.term-legend {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 15px;
+}
+
+.legend-title {
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 14px;
+}
+
+.legend-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.legend-label {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+}
+
+.legend-label strong {
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.term-months {
+  color: #999;
+  font-size: 12px;
+}
+
+/* Calendar Grid */
+.calendar-grid {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 600px;
+}
+
+.grid-header {
+  display: grid;
+  grid-template-columns: 60px repeat(12, 1fr);
+  gap: 1px;
+  background: #f0f0f0;
+  border-bottom: 2px solid #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.time-header {
+  background: #f5f5f5;
+  font-weight: 600;
+  color: #333;
+  padding: 10px 5px;
+  text-align: center;
+  border-right: 1px solid #ddd;
+}
+
+.month-header {
+  background: #f5f5f5;
+  font-weight: 600;
+  color: #333;
+  padding: 10px 5px;
+  text-align: center;
+  font-size: 12px;
+  border-right: 1px solid #ddd;
+
+  &:last-child {
+    border-right: none;
+  }
+}
+
+.grid-rows {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+.grid-row {
+  display: grid;
+  grid-template-columns: 60px repeat(12, 1fr);
+  gap: 1px;
+  background: #f0f0f0;
+  border-bottom: 1px solid #e0e0e0;
+  min-height: 80px;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.time-label {
+  background: #fafafa;
+  font-weight: 500;
+  color: #666;
+  padding: 10px 5px;
+  text-align: center;
+  font-size: 11px;
+  border-right: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: sticky;
+  left: 0;
+  z-index: 5;
+}
+
+.grid-cell {
+  position: relative;
+  background: white;
+  padding: 4px;
+  border-right: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+
+  &:last-child {
+    border-right: none;
+  }
+
+  &.has-conflict {
+    background: #fff3cd;
+    border: 2px dashed #ff9800;
+    box-shadow: inset 0 0 10px rgba(255, 152, 0, 0.1);
+  }
+}
+
+.class-block {
+  background: #4CAF50;
+  color: white;
+  padding: 6px 4px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 11px;
+  min-height: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    filter: brightness(0.9);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.class-name {
+  font-weight: 600;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.class-slot {
+  font-size: 10px;
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-size: 14px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .grid-header,
+  .grid-row {
+    grid-template-columns: 50px repeat(6, 1fr);
+  }
+
+  .legend-items {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .month-header {
+    font-size: 10px;
+  }
+
+  .time-label {
+    font-size: 10px;
+  }
+
+  .class-block {
+    min-height: 25px;
+    padding: 4px 2px;
+  }
+
+  .class-name {
+    font-size: 10px;
+  }
+
+  .class-slot {
+    font-size: 9px;
+  }
+}

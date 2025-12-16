@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ClassModel, ClassService } from './class.service';
 import { ClassConflict, ConflictDetectorService } from './conflict-detector.service';
 import { EditClassModalComponent } from './edit-class-modal.component';
+import { CalendarGridComponent } from './calendar-grid.component';
 
 export interface ScheduleOption {
   id: string;
@@ -16,7 +17,7 @@ export interface ScheduleOption {
 @Component({
   selector: 'app-schedule-explorer',
   standalone: true,
-  imports: [CommonModule, EditClassModalComponent],
+  imports: [CommonModule, EditClassModalComponent, CalendarGridComponent],
   templateUrl: './schedule-explorer.component.html',
   styleUrls: ['./schedule-explorer.component.scss']
 })
@@ -81,7 +82,7 @@ export class ScheduleExplorerComponent implements OnInit, OnChanges {
         id: 'best',
         name: '⭐ Best Option (Stub)',
         description: 'Optimized for minimal conflicts and balanced load',
-        classes: this.generateShuffledSchedule(),
+        classes: this.classes,
         conflicts: [],
         score: 95
       },
@@ -89,7 +90,7 @@ export class ScheduleExplorerComponent implements OnInit, OnChanges {
         id: 'alternative',
         name: '✓ Good Alternative (Stub)',
         description: 'Slightly different configuration with similar results',
-        classes: this.generateShuffledSchedule(),
+        classes: this.classes,
         conflicts: [],
         score: 85
       },
@@ -97,35 +98,17 @@ export class ScheduleExplorerComponent implements OnInit, OnChanges {
         id: 'with_conflicts',
         name: '⚠️ Close But Conflicts (Stub)',
         description: 'Resolves some scheduling constraints but introduces conflicts',
-        classes: this.generateShuffledSchedule(),
+        classes: this.classes,
         conflicts: this.generateFakeConflict(),
         score: 70
       }
     ];
   }
 
-  /**
-   * Stub: shuffle meeting days to simulate a different schedule.
-   * In production, this would come from a solver algorithm.
-   */
-  private generateShuffledSchedule(): ClassModel[] {
-    return this.classes.map((c) => ({
-      ...c,
-      daysOfWeek: this.randomDays()
-    }));
-  }
-
-  private randomDays(): number[] {
-    const availableDays = [1, 2, 3, 4, 5]; // Mon-Fri
-    const count = Math.random() > 0.5 ? 2 : 3;
-    const days: number[] = [];
-    for (let i = 0; i < count; i++) {
-      const day = availableDays[Math.floor(Math.random() * availableDays.length)];
-      if (!days.includes(day)) {
-        days.push(day);
-      }
-    }
-    return days.sort();
+  formatDays(days?: number[]): string {
+    if (!days || days.length === 0) return '—';
+    const names = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return days.map((d) => names[d]).join(', ');
   }
 
   private generateFakeConflict(): ClassConflict[] {
@@ -161,25 +144,31 @@ export class ScheduleExplorerComponent implements OnInit, OnChanges {
     return 'Fair';
   }
 
-  formatDays(days?: number[]): string {
-    if (!days || days.length === 0) return '—';
-    const names = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    return days.map((d) => names[d]).join(', ');
-  }
-
   getPriorityColor(priority: number): string {
     if (priority >= 8) return '#4CAF50'; // Green
     if (priority >= 5) return '#2196F3'; // Blue
     return '#FF9800'; // Orange
   }
 
+  convertConflicts(): { class1: ClassModel; class2: ClassModel }[] {
+    // Convert ClassConflict format to the format expected by calendar-grid
+    return this.conflicts.map(conflict => ({
+      class1: this.classes.find(c => c.name === conflict.className1) || this.classes[0],
+      class2: this.classes.find(c => c.name === conflict.className2) || this.classes[0]
+    })).filter(c => c.class1 && c.class2);
+  }
+
+  editClass(cls: ClassModel) {
+    this.editingClass = { ...cls };
+    this.showEditModal = true;
+  }
+
   openNewClassModal() {
     this.editingClass = {
       name: '',
       term: 'Semester',
+      termSlot: 'S1',
       durationType: 'Block',
-      startTime: '09:00',
-      daysOfWeek: [1, 3],
       priority: 5
     };
     this.showEditModal = true;

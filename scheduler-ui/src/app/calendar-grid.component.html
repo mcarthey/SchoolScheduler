@@ -1,0 +1,54 @@
+<div class="calendar-grid-container">
+  <!-- Term Legend -->
+  <div class="term-legend">
+    <div class="legend-title">School Calendar</div>
+    <div class="legend-items">
+      <div *ngFor="let term of termDisplays" class="legend-item">
+        <div class="legend-color" [style.background-color]="term.color"></div>
+        <div class="legend-label">
+          <strong>{{ term.name }}</strong>
+          <span class="term-months">{{ months[term.startMonth] }} - {{ months[term.endMonth] }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar Grid -->
+  <div class="calendar-grid">
+    <!-- Header: Month labels -->
+    <div class="grid-header">
+      <div class="time-header"></div>
+      <div *ngFor="let month of months" class="month-header">
+        {{ month }}
+      </div>
+    </div>
+
+    <!-- Grid rows: Hours and cells -->
+    <div class="grid-rows">
+      <!-- Row for each hour -->
+      <div *ngFor="let hour of hours" class="grid-row">
+        <!-- Time label -->
+        <div class="time-label">{{ getHourLabel(hour) }}</div>
+        
+        <!-- Cells for each month -->
+        <div *ngFor="let monthColumn of grid" class="grid-cell" 
+             [class.has-conflict]="monthColumn[hours.indexOf(hour)]?.hasConflict">
+          <!-- Classes in this cell -->
+          <div *ngFor="let cls of monthColumn[hours.indexOf(hour)]?.classes || []" 
+               class="class-block"
+               [style.background-color]="getClassColor(cls)"
+               [title]="cls.name + ' (' + cls.termSlot + ')'"
+               (click)="onClassClick(cls)">
+            <div class="class-name">{{ cls.name }}</div>
+            <div class="class-slot">{{ cls.termSlot }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="classes.length === 0" class="empty-state">
+    <p>No classes scheduled. Add classes to see them on the calendar.</p>
+  </div>
+</div>

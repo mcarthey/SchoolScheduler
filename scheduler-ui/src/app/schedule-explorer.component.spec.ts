@@ -39,10 +39,9 @@ describe('ScheduleExplorerComponent', () => {
         id: 1,
         name: 'English 101',
         term: 'Semester',
+        termSlot: 'S1',
         durationType: 'Block',
-        priority: 5,
-        daysOfWeek: [1, 3],
-        startTime: '09:00'
+        priority: 5
       }
     ];
 
@@ -58,10 +57,9 @@ describe('ScheduleExplorerComponent', () => {
         id: 1,
         name: 'English 101',
         term: 'Semester',
+        termSlot: 'S1',
         durationType: 'Block',
-        priority: 5,
-        daysOfWeek: [1, 3],
-        startTime: '09:00'
+        priority: 5
       }
     ];
 
@@ -91,10 +89,9 @@ describe('ScheduleExplorerComponent', () => {
         id: 1,
         name: 'English 101',
         term: 'Semester',
+        termSlot: 'S1',
         durationType: 'Block',
-        priority: 5,
-        daysOfWeek: [1, 3],
-        startTime: '09:00'
+        priority: 5
       }
     ];
     component.conflicts = [];
@@ -125,10 +122,9 @@ describe('ScheduleExplorerComponent', () => {
         id: 1,
         name: 'English 101',
         term: 'Semester',
+        termSlot: 'S1',
         durationType: 'Block',
-        priority: 5,
-        daysOfWeek: [1, 3],
-        startTime: '09:00'
+        priority: 5
       }
     ];
 
@@ -161,10 +157,9 @@ describe('ScheduleExplorerComponent', () => {
         id: 1,
         name: 'English 101',
         term: 'Semester',
+        termSlot: 'S1',
         durationType: 'Block',
-        priority: 5,
-        daysOfWeek: [1, 3],
-        startTime: '09:00'
+        priority: 5
       }
     ];
     component.ngOnInit();
@@ -197,13 +192,6 @@ describe('ScheduleExplorerComponent', () => {
       expect(component.getScoreLabel(50)).toBe('Fair');
     });
 
-    it('should format days correctly', () => {
-      expect(component.formatDays([1, 3, 5])).toBe('Mon, Wed, Fri');
-      expect(component.formatDays([0, 6])).toBe('Sun, Sat');
-      expect(component.formatDays([])).toBe('—');
-      expect(component.formatDays(undefined)).toBe('—');
-    });
-
     it('should return correct priority color', () => {
       expect(component.getPriorityColor(10)).toBe('#4CAF50'); // Green
       expect(component.getPriorityColor(8)).toBe('#4CAF50'); // Green
@@ -223,10 +211,9 @@ describe('ScheduleExplorerComponent', () => {
         id: 1,
         name: 'New Class',
         term: 'Semester',
+        termSlot: 'S1',
         durationType: 'Block',
-        priority: 5,
-        daysOfWeek: [1, 3],
-        startTime: '09:00'
+        priority: 5
       }
     ];
 

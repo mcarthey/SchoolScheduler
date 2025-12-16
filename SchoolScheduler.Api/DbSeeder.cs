@@ -12,9 +12,8 @@ public static class DbSeeder
             {
                 Name = "English 10",
                 Term = "Semester",
+                TermSlot = "S1",
                 DurationType = "Block",
-                StartTime = "09:00",
-                DaysOfWeek = new[] { 1, 3, 5 }, // Monday, Wednesday, Friday
                 Priority = 5
             });
 

@@ -6,10 +6,9 @@ import { environment } from './environment';
 export interface ClassModel {
   id?: number;
   name: string;
-  term: string;                    // Reference to term config (Semester, Half-Year, Full Year)
-  durationType: string;            // Reference to duration type config (Block, Skinny)
-  startTime: string;               // HH:mm format (e.g., "09:00")
-  daysOfWeek: number[];            // Days 0-6 (Sun-Sat) when class meets
+  term: string;                    // "Semester", "Half-Semester", or "Full-Year"
+  termSlot: string;                // "S1", "S2", "Q1", "Q2", "Q3", "Q4", "FullYear"
+  durationType: string;            // "Block" (1 hour) or "Skinny" (45 minutes)
   priority: number;                // 1-10 scheduling priority
 }
 
