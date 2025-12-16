@@ -6,16 +6,11 @@ import { environment } from './environment';
 export interface ClassModel {
   id?: number;
   name: string;
-  term: string;
-  durationType: string;
-  startDate: string;
-  endDate: string;
-  minutesPerSession: number;
-  priority: number;
-  // UI-only fields (not persisted to backend; used for calendar rendering)
-  daysOfWeek?: number[]; // 0-6 (Sun-Sat) when class meets
-  startTime?: string; // HH:mm format
-  endTime?: string; // HH:mm format
+  term: string;                    // Reference to term config (Semester, Half-Year, Full Year)
+  durationType: string;            // Reference to duration type config (Block, Skinny)
+  startTime: string;               // HH:mm format (e.g., "09:00")
+  daysOfWeek: number[];            // Days 0-6 (Sun-Sat) when class meets
+  priority: number;                // 1-10 scheduling priority
 }
 
 @Injectable({ providedIn: 'root' })
@@ -38,9 +33,8 @@ export class ClassService {
     return this.http.post<ClassModel>(this.apiUrl, this.serializeForBackend(model));
   }
 
-  // Remove UI-only fields before sending to backend
+  // No serialization needed - all fields are persisted
   private serializeForBackend(model: ClassModel): Partial<ClassModel> {
-    const { daysOfWeek, startTime, endTime, ...backendModel } = model;
-    return backendModel;
+    return model;
   }
 }

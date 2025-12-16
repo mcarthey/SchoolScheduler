@@ -19,13 +19,9 @@ export class EditClassModalComponent implements OnInit {
     name: '',
     term: 'Semester',
     durationType: 'Block',
-    startDate: '',
-    endDate: '',
-    minutesPerSession: 60,
-    priority: 5,
-    daysOfWeek: [1, 3],
     startTime: '09:00',
-    endTime: '10:00'
+    daysOfWeek: [1, 3],
+    priority: 5
   };
 
   errors: { [key: string]: string } = {};
@@ -72,29 +68,17 @@ export class EditClassModalComponent implements OnInit {
     if (!this.form.name || this.form.name.trim() === '') {
       this.errors['name'] = 'Class name is required';
     }
-    if (!this.form.startDate) {
-      this.errors['startDate'] = 'Start date is required';
-    }
-    if (!this.form.endDate) {
-      this.errors['endDate'] = 'End date is required';
-    }
-    if (this.form.startDate && this.form.endDate && this.form.startDate > this.form.endDate) {
-      this.errors['endDate'] = 'End date must be after start date';
-    }
     if (!this.form.startTime) {
       this.errors['startTime'] = 'Start time is required';
-    }
-    if (!this.form.endTime) {
-      this.errors['endTime'] = 'End time is required';
-    }
-    if (this.form.startTime && this.form.endTime && this.form.startTime >= this.form.endTime) {
-      this.errors['endTime'] = 'End time must be after start time';
     }
     if (!this.form.daysOfWeek || this.form.daysOfWeek.length === 0) {
       this.errors['daysOfWeek'] = 'Select at least one meeting day';
     }
-    if (this.form.minutesPerSession < 1 || this.form.minutesPerSession > 600) {
-      this.errors['minutesPerSession'] = 'Minutes per session must be between 1 and 600';
+    if (!this.form.term) {
+      this.errors['term'] = 'Term is required';
+    }
+    if (!this.form.durationType) {
+      this.errors['durationType'] = 'Duration type is required';
     }
     if (this.form.priority < 1 || this.form.priority > 10) {
       this.errors['priority'] = 'Priority must be between 1 and 10';

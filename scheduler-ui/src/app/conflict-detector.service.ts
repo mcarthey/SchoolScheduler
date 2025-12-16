@@ -41,10 +41,8 @@ export class ConflictDetectorService {
     if (
       !class1.daysOfWeek ||
       !class1.startTime ||
-      !class1.endTime ||
       !class2.daysOfWeek ||
-      !class2.startTime ||
-      !class2.endTime
+      !class2.startTime
     ) {
       return null;
     }
@@ -55,18 +53,35 @@ export class ConflictDetectorService {
       return null;
     }
 
+    // Calculate end times based on durationType
+    const end1 = this.calculateEndTime(class1.startTime, class1.durationType);
+    const end2 = this.calculateEndTime(class2.startTime, class2.durationType);
+
     // Check if times overlap on shared days
-    if (this.timesOverlap(class1.startTime, class1.endTime, class2.startTime, class2.endTime)) {
+    if (this.timesOverlap(class1.startTime, end1, class2.startTime, end2)) {
       return {
         classId1: class1.id || 0,
         classId2: class2.id || 0,
         className1: class1.name,
         className2: class2.name,
-        reason: `Conflicts on ${this.dayNames(sharedDays)}: ${class1.startTime}-${class1.endTime} overlaps with ${class2.startTime}-${class2.endTime}`
+        reason: `Conflicts on ${this.dayNames(sharedDays)}: ${class1.startTime}-${end1} overlaps with ${class2.startTime}-${end2}`
       };
     }
 
     return null;
+  }
+
+  /**
+   * Calculates end time based on start time and duration type.
+   * Block = 60 minutes, Skinny = 45 minutes
+   */
+  private calculateEndTime(startTime: string, durationType: string): string {
+    const durationMinutes = durationType === 'Block' ? 60 : 45;
+    const [hours, mins] = startTime.split(':').map(Number);
+    const totalMinutes = hours * 60 + mins + durationMinutes;
+    const endHours = Math.floor(totalMinutes / 60);
+    const endMins = totalMinutes % 60;
+    return `${endHours.toString().padStart(2, '0')}:${endMins.toString().padStart(2, '0')}`;
   }
 
   /**

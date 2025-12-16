@@ -56,7 +56,7 @@ export class CalendarComponent implements OnInit {
   private loadClasses() {
     this.classService.getClasses().subscribe({
       next: (classes) => {
-        this.classes = this.enrichClassesWithDefaults(classes);
+        this.classes = classes;
         this.checkConflicts();
       },
       error: (err) => console.error('Failed to load classes:', err)
@@ -64,12 +64,31 @@ export class CalendarComponent implements OnInit {
   }
 
   private enrichClassesWithDefaults(classes: ClassModel[]): ClassModel[] {
-    return classes.map(c => ({
-      ...c,
-      daysOfWeek: c.daysOfWeek || [1, 3], // Default Mon, Wed
-      startTime: c.startTime || '09:00',
-      endTime: c.endTime || this.calculateEndTime(c.startTime || '09:00', c.minutesPerSession)
-    }));
+    // No enrichment needed - all required fields are persisted
+    return classes;
+  }
+
+  getClassesForDay(dayIndex: number): ClassModel[] {
+    return this.classes.filter(c => c.daysOfWeek?.includes(dayIndex));
+  }
+
+  getClassPosition(classItem: ClassModel): { top: string; height: string } {
+    if (!classItem.startTime) {
+      return { top: '0', height: '50px' };
+    }
+
+    // Calculate end time based on durationType
+    const durationMinutes = classItem.durationType === 'Block' ? 60 : 45;
+    const endTime = this.calculateEndTime(classItem.startTime, durationMinutes);
+
+    const startMins = this.timeToMinutes(classItem.startTime);
+    const endMins = this.timeToMinutes(endTime);
+    const slotStart = this.timeToMinutes('07:00');
+    
+    const top = ((startMins - slotStart) / 30) * 50; // 50px per 30-min slot
+    const height = ((endMins - startMins) / 30) * 50;
+    
+    return { top: `${top}px`, height: `${height}px` };
   }
 
   private calculateEndTime(startTime: string, minutes: number): string {
@@ -78,25 +97,6 @@ export class CalendarComponent implements OnInit {
     const endHours = Math.floor(totalMinutes / 60);
     const endMins = totalMinutes % 60;
     return `${endHours.toString().padStart(2, '0')}:${endMins.toString().padStart(2, '0')}`;
-  }
-
-  getClassesForDay(dayIndex: number): ClassModel[] {
-    return this.classes.filter(c => c.daysOfWeek?.includes(dayIndex));
-  }
-
-  getClassPosition(classItem: ClassModel): { top: string; height: string } {
-    if (!classItem.startTime || !classItem.endTime) {
-      return { top: '0', height: '50px' };
-    }
-
-    const startMins = this.timeToMinutes(classItem.startTime);
-    const endMins = this.timeToMinutes(classItem.endTime);
-    const slotStart = this.timeToMinutes('07:00');
-    
-    const top = ((startMins - slotStart) / 30) * 50; // 50px per 30-min slot
-    const height = ((endMins - startMins) / 30) * 50;
-    
-    return { top: `${top}px`, height: `${height}px` };
   }
 
   private timeToMinutes(time: string): number {
@@ -109,13 +109,9 @@ export class CalendarComponent implements OnInit {
       name: '',
       term: 'Semester',
       durationType: 'Block',
-      startDate: '',
-      endDate: '',
-      minutesPerSession: 60,
-      priority: 5,
-      daysOfWeek: [1, 3],
       startTime: '09:00',
-      endTime: '10:00'
+      daysOfWeek: [1, 3],
+      priority: 5
     };
     this.showEditModal = true;
   }

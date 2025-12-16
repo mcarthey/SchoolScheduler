@@ -26,13 +26,9 @@ describe('ConflictDetectorService', () => {
           name: 'English 101',
           term: 'Semester',
           durationType: 'Block',
-          startDate: '2024-01-01',
-          endDate: '2024-05-01',
-          minutesPerSession: 60,
           priority: 5,
           daysOfWeek: [1, 3],
-          startTime: '09:00',
-          endTime: '10:00'
+          startTime: '09:00'
         }
       ];
       const conflicts = service.detectConflicts(classes);
@@ -46,26 +42,18 @@ describe('ConflictDetectorService', () => {
           name: 'English 101',
           term: 'Semester',
           durationType: 'Block',
-          startDate: '2024-01-01',
-          endDate: '2024-05-01',
-          minutesPerSession: 60,
           priority: 5,
           daysOfWeek: [1, 3],
-          startTime: '09:00',
-          endTime: '10:00'
+          startTime: '09:00'
         },
         {
           id: 2,
           name: 'Math 101',
           term: 'Semester',
           durationType: 'Block',
-          startDate: '2024-01-01',
-          endDate: '2024-05-01',
-          minutesPerSession: 60,
           priority: 7,
           daysOfWeek: [1, 3],
-          startTime: '09:30',
-          endTime: '10:30'
+          startTime: '09:30'
         }
       ];
 
@@ -86,26 +74,18 @@ describe('ConflictDetectorService', () => {
           name: 'English 101',
           term: 'Semester',
           durationType: 'Block',
-          startDate: '2024-01-01',
-          endDate: '2024-05-01',
-          minutesPerSession: 60,
           priority: 5,
           daysOfWeek: [1, 3],
-          startTime: '09:00',
-          endTime: '10:00'
+          startTime: '09:00'
         },
         {
           id: 2,
           name: 'Math 101',
           term: 'Semester',
           durationType: 'Block',
-          startDate: '2024-01-01',
-          endDate: '2024-05-01',
-          minutesPerSession: 60,
           priority: 7,
           daysOfWeek: [2, 4],
-          startTime: '09:00',
-          endTime: '10:00'
+          startTime: '09:00'
         }
       ];
 
@@ -120,26 +100,18 @@ describe('ConflictDetectorService', () => {
           name: 'English 101',
           term: 'Semester',
           durationType: 'Block',
-          startDate: '2024-01-01',
-          endDate: '2024-05-01',
-          minutesPerSession: 60,
           priority: 5,
           daysOfWeek: [1, 3],
-          startTime: '09:00',
-          endTime: '10:00'
+          startTime: '09:00'
         },
         {
           id: 2,
           name: 'Math 101',
           term: 'Semester',
           durationType: 'Block',
-          startDate: '2024-01-01',
-          endDate: '2024-05-01',
-          minutesPerSession: 60,
           priority: 7,
           daysOfWeek: [1, 3],
-          startTime: '10:00',
-          endTime: '11:00'
+          startTime: '10:00'
         }
       ];
 
@@ -154,39 +126,27 @@ describe('ConflictDetectorService', () => {
           name: 'English 101',
           term: 'Semester',
           durationType: 'Block',
-          startDate: '2024-01-01',
-          endDate: '2024-05-01',
-          minutesPerSession: 60,
           priority: 5,
           daysOfWeek: [1],
-          startTime: '09:00',
-          endTime: '10:00'
+          startTime: '09:00'
         },
         {
           id: 2,
           name: 'Math 101',
           term: 'Semester',
           durationType: 'Block',
-          startDate: '2024-01-01',
-          endDate: '2024-05-01',
-          minutesPerSession: 60,
           priority: 7,
           daysOfWeek: [1],
-          startTime: '09:30',
-          endTime: '10:30'
+          startTime: '09:30'
         },
         {
           id: 3,
           name: 'Science 101',
           term: 'Semester',
           durationType: 'Block',
-          startDate: '2024-01-01',
-          endDate: '2024-05-01',
-          minutesPerSession: 60,
           priority: 6,
           daysOfWeek: [1],
-          startTime: '09:15',
-          endTime: '10:15'
+          startTime: '09:15'
         }
       ];
 

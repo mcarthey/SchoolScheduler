@@ -20,33 +20,7 @@
       <span *ngIf="errors['name']" class="error-message">{{ errors['name'] }}</span>
     </div>
 
-    <!-- Date Range -->
-    <div class="form-row">
-      <div class="form-group">
-        <label for="startDate">Start Date *</label>
-        <input
-          id="startDate"
-          type="date"
-          [(ngModel)]="form.startDate"
-          name="startDate"
-          class="form-input"
-          [class.error]="errors['startDate']"
-        />
-        <span *ngIf="errors['startDate']" class="error-message">{{ errors['startDate'] }}</span>
-      </div>
-      <div class="form-group">
-        <label for="endDate">End Date *</label>
-        <input
-          id="endDate"
-          type="date"
-          [(ngModel)]="form.endDate"
-          name="endDate"
-          class="form-input"
-          [class.error]="errors['endDate']"
-        />
-        <span *ngIf="errors['endDate']" class="error-message">{{ errors['endDate'] }}</span>
-      </div>
-    </div>
+
 
     <!-- Term & Duration Type -->
     <div class="form-row">
@@ -107,38 +81,11 @@
         />
         <span *ngIf="errors['startTime']" class="error-message">{{ errors['startTime'] }}</span>
       </div>
-      <div class="form-group">
-        <label for="endTime">End Time (HH:mm) *</label>
-        <input
-          id="endTime"
-          type="time"
-          [(ngModel)]="form.endTime"
-          name="endTime"
-          class="form-input"
-          [class.error]="errors['endTime']"
-        />
-        <span *ngIf="errors['endTime']" class="error-message">{{ errors['endTime'] }}</span>
-      </div>
+
     </div>
 
-    <!-- Minutes & Priority -->
+    <!-- Priority -->
     <div class="form-row">
-      <div class="form-group">
-        <label for="minutesPerSession">Minutes Per Session (1-600) *</label>
-        <input
-          id="minutesPerSession"
-          type="number"
-          [(ngModel)]="form.minutesPerSession"
-          name="minutesPerSession"
-          min="1"
-          max="600"
-          class="form-input"
-          [class.error]="errors['minutesPerSession']"
-        />
-        <span *ngIf="errors['minutesPerSession']" class="error-message">
-          {{ errors['minutesPerSession'] }}
-        </span>
-      </div>
       <div class="form-group">
         <label for="priority">Priority (1-10) *</label>
         <input

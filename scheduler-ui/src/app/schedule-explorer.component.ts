@@ -1,7 +1,8 @@
-import { Component, Input, OnInit, OnChanges } from '@angular/core';
+import { Component, OnInit, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ClassModel } from './class.service';
-import { ClassConflict } from './conflict-detector.service';
+import { ClassModel, ClassService } from './class.service';
+import { ClassConflict, ConflictDetectorService } from './conflict-detector.service';
+import { EditClassModalComponent } from './edit-class-modal.component';
 
 export interface ScheduleOption {
   id: string;
@@ -15,24 +16,42 @@ export interface ScheduleOption {
 @Component({
   selector: 'app-schedule-explorer',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, EditClassModalComponent],
   templateUrl: './schedule-explorer.component.html',
   styleUrls: ['./schedule-explorer.component.scss']
 })
 export class ScheduleExplorerComponent implements OnInit, OnChanges {
-  @Input() classes: ClassModel[] = [];
-  @Input() conflicts: ClassConflict[] = [];
+  classes: ClassModel[] = [];
+  conflicts: ClassConflict[] = [];
 
   selectedScheduleId = 'current';
-
   schedules: ScheduleOption[] = [];
 
+  showEditModal = false;
+  editingClass: ClassModel | null = null;
+
+  constructor(
+    private classService: ClassService,
+    private conflictDetector: ConflictDetectorService
+  ) {}
+
   ngOnInit() {
-    this.generateSchedules();
+    this.loadClasses();
   }
 
   ngOnChanges() {
     this.generateSchedules();
+  }
+
+  private loadClasses() {
+    this.classService.getClasses().subscribe({
+      next: (classes) => {
+        this.classes = classes;
+        this.conflicts = this.conflictDetector.detectConflicts(classes);
+        this.generateSchedules();
+      },
+      error: (err) => console.error('Failed to load classes:', err)
+    });
   }
 
   /**
@@ -120,6 +139,36 @@ export class ScheduleExplorerComponent implements OnInit, OnChanges {
 
   getSelectedSchedule(): ScheduleOption | undefined {
     return this.schedules.find((s) => s.id === this.selectedScheduleId);
+  }
+
+  openNewClassModal() {
+    this.editingClass = {
+      name: '',
+      term: 'Semester',
+      durationType: 'Block',
+      startTime: '09:00',
+      daysOfWeek: [1, 3],
+      priority: 5
+    };
+    this.showEditModal = true;
+  }
+
+  onClassSaved(savedClass: ClassModel) {
+    const index = this.classes.findIndex(c => c.id === savedClass.id);
+    if (index >= 0) {
+      this.classes[index] = savedClass;
+    } else {
+      this.classes.push(savedClass);
+    }
+    this.conflicts = this.conflictDetector.detectConflicts(this.classes);
+    this.generateSchedules();
+    this.showEditModal = false;
+    this.editingClass = null;
+  }
+
+  onModalClosed() {
+    this.showEditModal = false;
+    this.editingClass = null;
   }
 
   getScoreColor(score: number): string {

@@ -1,13 +1,22 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ScheduleExplorerComponent } from './schedule-explorer.component';
-import { ClassModel } from './class.service';
-import { ClassConflict } from './conflict-detector.service';
+import { ClassModel, ClassService } from './class.service';
+import { ClassConflict, ConflictDetectorService } from './conflict-detector.service';
 
 describe('ScheduleExplorerComponent', () => {
   let component: ScheduleExplorerComponent;
+  let mockClassService: any;
+  let mockConflictDetector: any;
 
   beforeEach(() => {
-    component = new ScheduleExplorerComponent();
+    mockClassService = {
+      getClasses: vi.fn().mockReturnValue({ subscribe: vi.fn() }),
+      saveClass: vi.fn().mockReturnValue({ subscribe: vi.fn() })
+    };
+    mockConflictDetector = {
+      detectConflicts: vi.fn().mockReturnValue([])
+    };
+    component = new ScheduleExplorerComponent(mockClassService, mockConflictDetector);
   });
 
   it('should create', () => {
@@ -26,13 +35,9 @@ describe('ScheduleExplorerComponent', () => {
         name: 'English 101',
         term: 'Semester',
         durationType: 'Block',
-        startDate: '2024-01-01',
-        endDate: '2024-05-01',
-        minutesPerSession: 60,
         priority: 5,
         daysOfWeek: [1, 3],
-        startTime: '09:00',
-        endTime: '10:00'
+        startTime: '09:00'
       }
     ];
 
@@ -49,13 +54,9 @@ describe('ScheduleExplorerComponent', () => {
         name: 'English 101',
         term: 'Semester',
         durationType: 'Block',
-        startDate: '2024-01-01',
-        endDate: '2024-05-01',
-        minutesPerSession: 60,
         priority: 5,
         daysOfWeek: [1, 3],
-        startTime: '09:00',
-        endTime: '10:00'
+        startTime: '09:00'
       }
     ];
 
@@ -86,13 +87,9 @@ describe('ScheduleExplorerComponent', () => {
         name: 'English 101',
         term: 'Semester',
         durationType: 'Block',
-        startDate: '2024-01-01',
-        endDate: '2024-05-01',
-        minutesPerSession: 60,
         priority: 5,
         daysOfWeek: [1, 3],
-        startTime: '09:00',
-        endTime: '10:00'
+        startTime: '09:00'
       }
     ];
     component.conflicts = [];
@@ -124,13 +121,9 @@ describe('ScheduleExplorerComponent', () => {
         name: 'English 101',
         term: 'Semester',
         durationType: 'Block',
-        startDate: '2024-01-01',
-        endDate: '2024-05-01',
-        minutesPerSession: 60,
         priority: 5,
         daysOfWeek: [1, 3],
-        startTime: '09:00',
-        endTime: '10:00'
+        startTime: '09:00'
       }
     ];
 
@@ -164,10 +157,9 @@ describe('ScheduleExplorerComponent', () => {
         name: 'English 101',
         term: 'Semester',
         durationType: 'Block',
-        startDate: '2024-01-01',
-        endDate: '2024-05-01',
-        minutesPerSession: 60,
-        priority: 5
+        priority: 5,
+        daysOfWeek: [1, 3],
+        startTime: '09:00'
       }
     ];
     component.ngOnInit();
@@ -227,10 +219,9 @@ describe('ScheduleExplorerComponent', () => {
         name: 'New Class',
         term: 'Semester',
         durationType: 'Block',
-        startDate: '2024-01-01',
-        endDate: '2024-05-01',
-        minutesPerSession: 60,
-        priority: 5
+        priority: 5,
+        daysOfWeek: [1, 3],
+        startTime: '09:00'
       }
     ];
 
