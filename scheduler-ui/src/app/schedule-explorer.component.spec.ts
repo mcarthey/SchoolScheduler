@@ -21,7 +21,11 @@ describe('ScheduleExplorerComponent', () => {
     mockNgZone = {
       run: vi.fn((callback) => callback())
     };
-    component = new ScheduleExplorerComponent(mockClassService, mockConflictDetector, mockNgZone);
+    const mockCdr = {
+      markForCheck: vi.fn(),
+      detectChanges: vi.fn()
+    };
+    component = new ScheduleExplorerComponent(mockClassService, mockConflictDetector, mockNgZone, mockCdr as any);
   });
 
   it('should create', () => {
@@ -199,6 +203,117 @@ describe('ScheduleExplorerComponent', () => {
       expect(component.getPriorityColor(5)).toBe('#2196F3'); // Blue
       expect(component.getPriorityColor(4)).toBe('#FF9800'); // Orange
       expect(component.getPriorityColor(1)).toBe('#FF9800'); // Orange
+    });
+  });
+
+  describe('Calendar Integration', () => {
+    it('should convert conflicts to calendar format', () => {
+      component.classes = [
+        {
+          id: 1,
+          name: 'English 101',
+          term: 'Semester',
+          termSlot: 'S1',
+          durationType: 'Block',
+          priority: 5
+        },
+        {
+          id: 2,
+          name: 'Math 101',
+          term: 'Semester',
+          termSlot: 'S1',
+          durationType: 'Block',
+          priority: 7
+        }
+      ];
+      component.conflicts = [
+        {
+          classId1: 1,
+          classId2: 2,
+          className1: 'English 101',
+          className2: 'Math 101',
+          reason: 'Overlapping term slots'
+        }
+      ];
+
+      const converted = component.convertConflicts();
+      expect(converted).toHaveLength(1);
+      expect(converted[0].class1.name).toBe('English 101');
+      expect(converted[0].class2.name).toBe('Math 101');
+    });
+
+    it('should filter out invalid conflicts during conversion', () => {
+      component.classes = [
+        {
+          id: 1,
+          name: 'English 101',
+          term: 'Semester',
+          termSlot: 'S1',
+          durationType: 'Block',
+          priority: 5
+        }
+      ];
+      component.conflicts = [
+        {
+          classId1: 1,
+          classId2: 999,
+          className1: 'English 101',
+          className2: 'Nonexistent Class',
+          reason: 'Invalid'
+        }
+      ];
+
+      const converted = component.convertConflicts();
+      expect(converted).toHaveLength(0);
+    });
+
+    it('should open edit modal for class', () => {
+      const testClass: ClassModel = {
+        id: 1,
+        name: 'English 101',
+        term: 'Semester',
+        termSlot: 'S1',
+        durationType: 'Block',
+        priority: 5
+      };
+
+      component.editClass(testClass);
+
+      expect(component.showEditModal).toBe(true);
+      expect(component.editingClass).toEqual(testClass);
+      expect(component.editingClass).not.toBe(testClass); // Should be a copy
+    });
+  });
+
+  describe('Modal Interactions', () => {
+    it('should open new class modal with defaults', () => {
+      component.openNewClassModal();
+
+      expect(component.showEditModal).toBe(true);
+      expect(component.editingClass).toEqual({
+        name: '',
+        term: 'Semester',
+        termSlot: 'S1',
+        durationType: 'Block',
+        priority: 5
+      });
+    });
+
+    it('should close modal and clear editing class', () => {
+      component.showEditModal = true;
+      component.editingClass = {
+        id: 1,
+        name: 'Test',
+        term: 'Semester',
+        termSlot: 'S1',
+        durationType: 'Block',
+        priority: 5
+      };
+
+      component.onModalClosed();
+
+      expect(component.showEditModal).toBe(false);
+      expect(component.editingClass).toBeNull();
     });
   });
 
