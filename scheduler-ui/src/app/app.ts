@@ -1,37 +1,20 @@
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { ClassModel, ClassService } from './class.service';
+import { Component } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
+import { CalendarComponent } from './calendar.component';
 
 @Component({
   selector: 'app-root',
-  imports: [FormsModule, CommonModule],
-  templateUrl: './app.html',
-  standalone: true
+  standalone: true,
+  imports: [HttpClientModule, CalendarComponent],
+  template: `<app-calendar></app-calendar>`,
+  styles: [
+    `
+      :host {
+        display: block;
+        height: 100vh;
+        overflow: hidden;
+      }
+    `
+  ]
 })
-export class App implements OnInit {
-  classes: ClassModel[] = [];
-
-  constructor(private service: ClassService) {}
-
-  ngOnInit() {
-    this.service.getClasses().subscribe(x => this.classes = x);
-  }
-
-  newClass: ClassModel = {
-    name: '',
-    term: 'Semester',
-    durationType: 'Block',
-    startDate: '',
-    endDate: '',
-    minutesPerSession: 60,
-    priority: 5
-  };
-
-  addClass() {
-    this.service.addClass(this.newClass).subscribe(r => {
-      this.classes.push(r);
-      this.newClass = { ...this.newClass, name: '' }; // reset name
-    });
-  }
-}
+export class App {}

@@ -1,0 +1,57 @@
+<div class="calendar-container">
+  <!-- View Switcher -->
+  <div class="view-controls">
+    <button
+      [class.active]="selectedView === 'week'"
+      (click)="switchView('week')"
+      class="view-btn"
+    >
+      📅 Week View
+    </button>
+    <button
+      [class.active]="selectedView === 'day'"
+      (click)="switchView('day')"
+      class="view-btn"
+    >
+      📆 Day View
+    </button>
+    <button
+      [class.active]="selectedView === 'explore'"
+      (click)="switchView('explore')"
+      class="view-btn"
+    >
+      🔍 Explore Schedules
+    </button>
+    <button (click)="openNewClassModal()" class="btn-add-class">+ Add Class</button>
+  </div>
+
+  <!-- Conflict Warnings -->
+  <div *ngIf="conflicts.length > 0" class="conflict-panel">
+    <div class="conflict-header">⚠️ Schedule Conflicts Detected</div>
+    <div *ngFor="let conflict of conflicts" class="conflict-item">
+      <strong>{{ conflict.className1 }}</strong> ↔ <strong>{{ conflict.className2 }}</strong>
+      <p class="conflict-reason">{{ conflict.reason }}</p>
+    </div>
+  </div>
+
+  <!-- Calendar View -->
+  <div *ngIf="selectedView !== 'explore'" class="calendar-view">
+    <full-calendar [options]="calendarOptions"></full-calendar>
+  </div>
+
+  <!-- Schedule Explorer View -->
+  <div *ngIf="selectedView === 'explore'" class="explorer-view">
+    <app-schedule-explorer [classes]="classes" [conflicts]="conflicts"></app-schedule-explorer>
+  </div>
+
+  <!-- Edit Class Modal -->
+  <div *ngIf="showEditModal" class="modal-overlay" (click)="onModalClosed()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <app-edit-class-modal
+        [class]="editingClass"
+        (saved)="onClassSaved($event)"
+        (closed)="onModalClosed()"
+      ></app-edit-class-modal>
+    </div>
+  </div>
+</div>

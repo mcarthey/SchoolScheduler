@@ -1,0 +1,168 @@
+<div class="modal-form">
+  <div class="modal-header">
+    <h2>{{ form.id ? 'Edit Class' : 'Add New Class' }}</h2>
+    <button class="btn-close" (click)="onClose()">✕</button>
+  </div>
+
+  <div class="modal-body">
+    <!-- Class Name -->
+    <div class="form-group">
+      <label for="name">Class Name *</label>
+      <input
+        id="name"
+        type="text"
+        [(ngModel)]="form.name"
+        name="name"
+        placeholder="e.g., English 101"
+        class="form-input"
+        [class.error]="errors['name']"
+      />
+      <span *ngIf="errors['name']" class="error-message">{{ errors['name'] }}</span>
+    </div>
+
+    <!-- Date Range -->
+    <div class="form-row">
+      <div class="form-group">
+        <label for="startDate">Start Date *</label>
+        <input
+          id="startDate"
+          type="date"
+          [(ngModel)]="form.startDate"
+          name="startDate"
+          class="form-input"
+          [class.error]="errors['startDate']"
+        />
+        <span *ngIf="errors['startDate']" class="error-message">{{ errors['startDate'] }}</span>
+      </div>
+      <div class="form-group">
+        <label for="endDate">End Date *</label>
+        <input
+          id="endDate"
+          type="date"
+          [(ngModel)]="form.endDate"
+          name="endDate"
+          class="form-input"
+          [class.error]="errors['endDate']"
+        />
+        <span *ngIf="errors['endDate']" class="error-message">{{ errors['endDate'] }}</span>
+      </div>
+    </div>
+
+    <!-- Term & Duration Type -->
+    <div class="form-row">
+      <div class="form-group">
+        <label for="term">Term</label>
+        <select
+          id="term"
+          [(ngModel)]="form.term"
+          name="term"
+          class="form-input"
+        >
+          <option value="Semester">Semester</option>
+          <option value="Half">Half-Semester</option>
+          <option value="Year">Full Year</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="durationType">Duration Type</label>
+        <select
+          id="durationType"
+          [(ngModel)]="form.durationType"
+          name="durationType"
+          class="form-input"
+        >
+          <option value="Block">Block</option>
+          <option value="Skinny">Skinny</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Meeting Days -->
+    <div class="form-group">
+      <label>Meeting Days *</label>
+      <div class="day-selector">
+        <button
+          *ngFor="let day of dayLabels"
+          (click)="toggleDay(day.num)"
+          [class.selected]="isDaySelected(day.num)"
+          class="day-btn"
+        >
+          {{ day.label.substring(0, 3) }}
+        </button>
+      </div>
+      <span *ngIf="errors['daysOfWeek']" class="error-message">{{ errors['daysOfWeek'] }}</span>
+    </div>
+
+    <!-- Meeting Time -->
+    <div class="form-row">
+      <div class="form-group">
+        <label for="startTime">Start Time (HH:mm) *</label>
+        <input
+          id="startTime"
+          type="time"
+          [(ngModel)]="form.startTime"
+          name="startTime"
+          class="form-input"
+          [class.error]="errors['startTime']"
+        />
+        <span *ngIf="errors['startTime']" class="error-message">{{ errors['startTime'] }}</span>
+      </div>
+      <div class="form-group">
+        <label for="endTime">End Time (HH:mm) *</label>
+        <input
+          id="endTime"
+          type="time"
+          [(ngModel)]="form.endTime"
+          name="endTime"
+          class="form-input"
+          [class.error]="errors['endTime']"
+        />
+        <span *ngIf="errors['endTime']" class="error-message">{{ errors['endTime'] }}</span>
+      </div>
+    </div>
+
+    <!-- Minutes & Priority -->
+    <div class="form-row">
+      <div class="form-group">
+        <label for="minutesPerSession">Minutes Per Session (1-600) *</label>
+        <input
+          id="minutesPerSession"
+          type="number"
+          [(ngModel)]="form.minutesPerSession"
+          name="minutesPerSession"
+          min="1"
+          max="600"
+          class="form-input"
+          [class.error]="errors['minutesPerSession']"
+        />
+        <span *ngIf="errors['minutesPerSession']" class="error-message">
+          {{ errors['minutesPerSession'] }}
+        </span>
+      </div>
+      <div class="form-group">
+        <label for="priority">Priority (1-10) *</label>
+        <input
+          id="priority"
+          type="number"
+          [(ngModel)]="form.priority"
+          name="priority"
+          min="1"
+          max="10"
+          class="form-input"
+          [class.error]="errors['priority']"
+        />
+        <span *ngIf="errors['priority']" class="error-message">{{ errors['priority'] }}</span>
+      </div>
+    </div>
+
+    <!-- Submit Error -->
+    <div *ngIf="errors['submit']" class="error-banner">{{ errors['submit'] }}</div>
+  </div>
+
+  <div class="modal-footer">
+    <button (click)="onClose()" class="btn btn-secondary">Cancel</button>
+    <button (click)="onSubmit()" [disabled]="isSaving" class="btn btn-primary">
+      {{ isSaving ? 'Saving...' : form.id ? 'Update Class' : 'Add Class' }}
+    </button>
+  </div>
+</div>
