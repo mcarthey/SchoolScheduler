@@ -2,7 +2,7 @@
 
 [![CI/CD Pipeline](https://github.com/mcarthey/SchoolScheduler/actions/workflows/ci.yml/badge.svg)](https://github.com/mcarthey/SchoolScheduler/actions/workflows/ci.yml)
 
-Lightweight POC that lets users create and view class schedules using a calendar-first interface. Backend is a .NET 10 minimal API with EF Core; for Dev/Testing it uses the EF InMemory provider. The UI is Angular 21 with FullCalendar for rich scheduling UX.
+Lightweight POC that lets users create and view class schedules using a calendar-first interface. Backend is a .NET 10 minimal API with EF Core; for Dev/Testing it uses the EF InMemory provider. The UI is Angular 21 with a schedule explorer for browsing and optimizing class assignments.
 
 ## Architecture
 - **SchoolScheduler.Api**: .NET 10 minimal API, Swagger enabled in Development, CORS open to http://localhost:4200, HTTPS at https://localhost:7217 (HTTP at http://localhost:5031). Chooses EF provider based on environment/config (InMemory for Development/Testing by default).
@@ -102,11 +102,11 @@ Tests spin up the API in a Testing environment using the in-memory database to v
 
 The Angular frontend is organized as follows:
 - **app.ts**: Root component with routing provider setup.
-- **calendar.component.ts**: Main week/day view calendar powered by FullCalendar.
+- **schedule-explorer.component.ts**: Main interface—displays multiple candidate schedules with quality scores and allows selection/optimization.
+- **edit-class-modal.component.ts**: Form for creating/editing classes (name, term, duration type, start time, meeting days, priority).
 - **class.service.ts**: HTTP client for /classes endpoint + local scheduling state.
-- **edit-class-modal.component.ts**: Form for creating/editing classes with live preview on calendar.
 - **conflict-detector.service.ts**: Detects overlapping classes and generates warnings.
-- **schedule-explorer.component.ts**: UI for browsing multiple candidate schedules (stubbed).
+- **calendar.component.ts**: Secondary week/day view for direct calendar manipulation (alternative to schedule explorer).
 
 ## API Endpoints
 
@@ -122,27 +122,21 @@ Backend domain model:
 {
   id?: number;
   name: string;                   // Required, max 200 chars
-  term: string;                   // Semester, Half, Year
-  durationType: string;           // Block, Skinny
-  startDate: string;              // ISO date format
-  endDate: string;                // ISO date format
-  minutesPerSession: number;      // 1-600
-  priority: number;               // 1-10
+  term: string;                   // Reference to configured term (Semester, Half, Year)
+  durationType: string;           // Reference to configured duration type (Block, Skinny)
+  startTime: string;              // HH:mm format for meeting start time
+  daysOfWeek: number[];           // Days 0-6 (Sun-Sat) when class meets
+  priority: number;               // 1-10 (scheduling priority)
 }
 `
 
-**UI Extensions (local only, not persisted to backend yet):**
-- daysOfWeek?: number[]  Days 0-6 (Sun-Sat) when class meets
-- startTime?: string  HH:mm format for meeting start time
-- endTime?: string  HH:mm format for meeting end time
-
-These UI fields enable the calendar to display and reschedule class blocks. When the backend evolves to support recurrence, these will be sent to the API.
+**Note:** `startDate`, `endDate`, and `minutesPerSession` are managed at the school/year configuration level, not per-class. Terms define the calendar window; duration types define the session length.
 
 ## Known Limitations & Future Enhancements
 
-1. **Meeting Schedule**: Currently, the UI adds daysOfWeek and startTime/endTime fields locally (not persisted to backend). When the backend evolves to support recurrence, these will be sent to the API.
-2. **Schedule Generation**: The "Explore Schedules" tab is a UI stub; backend optimization/constraint solver will be integrated later.
-3. **Drag & Drop**: Changes are persisted immediately to the API; no draft/undo workflow yet.
+1. **School Configuration**: Terms (Semester, Half-Year, Full Year) and duration types (Block, Skinny with predefined session lengths) are currently hardcoded. Should be externalized to a configuration API.
+2. **Schedule Optimization**: The schedule explorer displays multiple candidate schedules; backend constraint solver will be integrated to generate optimal solutions based on priority and conflict minimization.
+3. **Week View**: Currently available as an alternative interface; may be replaced or enhanced based on user feedback.
 4. **Browser Support**: Tested on Chrome; Firefox and Safari compatibility pending.
 
 ## Development Workflow
