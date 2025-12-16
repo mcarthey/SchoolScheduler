@@ -30,6 +30,7 @@ export class ScheduleExplorerComponent implements OnInit, OnChanges {
 
   showEditModal = false;
   editingClass: ClassModel | null = null;
+  showTimes = false; // Student view default (no times)
 
   constructor(
     private classService: ClassService,
@@ -156,6 +157,10 @@ export class ScheduleExplorerComponent implements OnInit, OnChanges {
       class1: this.classes.find(c => c.name === conflict.className1) || this.classes[0],
       class2: this.classes.find(c => c.name === conflict.className2) || this.classes[0]
     })).filter(c => c.class1 && c.class2);
+  }
+
+  toggleViewMode() {
+    this.showTimes = !this.showTimes;
   }
 
   editClass(cls: ClassModel) {

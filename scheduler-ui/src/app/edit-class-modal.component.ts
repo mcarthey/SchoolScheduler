@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ClassModel, ClassService } from './class.service';
-import { TERMS, DURATION_TYPES, getTermSlots } from './scheduler-config';
+import { TERMS, DURATION_TYPES, PERIOD_SLOTS, getTermSlots } from './scheduler-config';
 
 @Component({
   selector: 'app-edit-class-modal',
@@ -20,7 +20,7 @@ export class EditClassModalComponent implements OnInit {
     name: '',
     term: 'Semester',
     termSlot: 'S1',
-    periodSlot: 'A',
+    periodSlot: undefined,
     durationType: 'Block',
     priority: 5
   };
@@ -31,6 +31,7 @@ export class EditClassModalComponent implements OnInit {
   // Configuration from scheduler-config
   terms = TERMS;
   durationTypes = DURATION_TYPES;
+  periodSlots = PERIOD_SLOTS;
   availableTermSlots: string[] = ['S1', 'S2'];
 
   constructor(private classService: ClassService) {}
@@ -52,6 +53,16 @@ export class EditClassModalComponent implements OnInit {
 
   private updateAvailableSlots() {
     this.availableTermSlots = getTermSlots(this.form.term);
+  }
+
+  onPeriodSlotChange() {
+    // If changing to a period that doesn't support Skinny, or vice versa
+    // For now, just clear subPeriod if switching to Block
+    if (this.form.durationType === 'Block') {
+      this.form.subPeriod = undefined;
+    } else if (this.form.durationType === 'Skinny' && !this.form.subPeriod) {
+      this.form.subPeriod = 1; // Default to first half
+    }
   }
 
   isDaySelected(dayNum: number): boolean {
@@ -116,5 +127,12 @@ export class EditClassModalComponent implements OnInit {
 
   onClose() {
     this.closed.emit();
+  }
+
+  onOverlayClick(event: MouseEvent) {
+    // Close modal when clicking outside the form
+    if (event.target === event.currentTarget) {
+      this.onClose();
+    }
   }
 }

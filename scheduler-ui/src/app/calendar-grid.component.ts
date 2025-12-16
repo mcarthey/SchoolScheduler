@@ -36,12 +36,20 @@ export class CalendarGridComponent implements OnChanges {
   @Input() classes: ClassModel[] = [];
   @Input() conflicts: { class1: ClassModel; class2: ClassModel }[] = [];
   @Output() classClicked = new EventEmitter<ClassModel>();
+  // Hide times for student view; show times for admin placement
+  @Input() showTimes: boolean = false;
 
   // Calendar grid data
   months = MONTH_NAMES;
   hours: number[] = [];
   grid: CalendarCell[][] = [];
   termDisplays: TermDisplay[] = [];
+  // Classes with no period assignment get shown in this special lane
+  unassignedGrid: ClassModel[][] = [];
+  hasUnassignedClasses = false;
+  
+  // Student view: each class gets its own row
+  classRows: { class: ClassModel; months: boolean[] }[] = [];
 
   // Term colors (cycling through a palette)
   private termColors: { [key: string]: string } = {
@@ -62,10 +70,15 @@ export class CalendarGridComponent implements OnChanges {
   }
 
   private initializeGrid() {
-    // Create hours array (8 AM to 4 PM = 8 to 16)
+    // Create hours array, or collapse to a single row if times are hidden
     this.hours = [];
-    for (let h = SCHOOL_DAY.startHour; h < SCHOOL_DAY.endHour; h++) {
-      this.hours.push(h);
+    if (this.showTimes) {
+      for (let h = SCHOOL_DAY.startHour; h < SCHOOL_DAY.endHour; h++) {
+        this.hours.push(h);
+      }
+    } else {
+      // Single synthetic row for student view
+      this.hours.push(0);
     }
 
     // Initialize empty grid (12 months x 8 hours)
@@ -81,6 +94,12 @@ export class CalendarGridComponent implements OnChanges {
         });
       }
       this.grid.push(monthColumn);
+    }
+    
+    // Initialize unassigned lane (one cell per month)
+    this.unassignedGrid = [];
+    for (let month = 1; month <= 12; month++) {
+      this.unassignedGrid.push([]);
     }
   }
 
@@ -136,27 +155,56 @@ export class CalendarGridComponent implements OnChanges {
 
     // Place classes on the grid
     // Each class occupies:
-    // - Width: all months in its term slot
-    // - Height: hours based on duration type (Block=60min=1 hour, Skinny=45min~0.75 hours)
-    this.classes.forEach((cls) => {
-      const [startMonthNum, endMonthNum] = getTermSlotMonthRange(cls.termSlot);
-      const duration = cls.durationType === 'Block' ? 1 : 0.75;
-      
-      // Place class starting at 8 AM (first available hour)
-      const startHour = SCHOOL_DAY.startHour;
-      
-      for (let m = startMonthNum; m <= endMonthNum; m++) {
-        if (m - 1 < this.grid.length) {
-          for (let i = 0; i < Math.ceil(duration); i++) {
-            const hourIndex = i;
-            if (startHour + hourIndex < this.grid[m - 1].length) {
-              const cell = this.grid[m - 1][startHour + hourIndex];
-              cell.classes.push(cls);
+    // - Width: all months in its term slot (horizontal bar across calendar)
+    // - Height: specific time based on periodSlot (same row across all months)
+    this.hasUnassignedClasses = false;
+    
+    if (!this.showTimes) {
+      // Student view: each class gets its own dedicated row with a continuous bar
+      this.classRows = this.classes.map(cls => {
+        const [startMonthNum, endMonthNum] = getTermSlotMonthRange(cls.termSlot);
+        const monthFlags = Array(12).fill(false);
+        
+        // Mark which months this class spans
+        for (let m = startMonthNum; m <= endMonthNum; m++) {
+          const monthIndex = m - 1;
+          if (monthIndex >= 0 && monthIndex < 12) {
+            monthFlags[monthIndex] = true;
+          }
+        }
+        
+        return { class: cls, months: monthFlags };
+      });
+    } else {
+      // Admin view: show unassigned lane and period rows
+      this.classes.forEach((cls) => {
+        const [startMonthNum, endMonthNum] = getTermSlotMonthRange(cls.termSlot);
+        
+        if (!cls.periodSlot) {
+          for (let m = startMonthNum; m <= endMonthNum; m++) {
+            const monthIndex = m - 1;
+            if (monthIndex >= 0 && monthIndex < this.unassignedGrid.length) {
+              this.unassignedGrid[monthIndex].push(cls);
+              this.hasUnassignedClasses = true;
+            }
+          }
+        } else {
+          const periodHour = this.getPeriodStartHour(cls.periodSlot);
+          if (periodHour !== null) {
+            for (let m = startMonthNum; m <= endMonthNum; m++) {
+              const monthIndex = m - 1;
+              if (monthIndex >= 0 && monthIndex < this.grid.length) {
+                const hourIndex = this.hours.indexOf(periodHour);
+                if (hourIndex >= 0 && hourIndex < this.grid[monthIndex].length) {
+                  const cell = this.grid[monthIndex][hourIndex];
+                  cell.classes.push(cls);
+                }
+              }
             }
           }
         }
-      }
-    });
+      });
+    }
 
     // Mark conflicts
     this.conflicts.forEach(({ class1, class2 }) => {
@@ -181,6 +229,28 @@ export class CalendarGridComponent implements OnChanges {
 
   getClassColor(cls: ClassModel): string {
     return this.termColors[cls.termSlot] || '#95A5A6';
+  }
+
+  getPeriodStartHour(periodSlot: string): number | null {
+    // Map period slots to their start hour
+    // Based on the school schedule:
+    // Block A: 7:20-8:45 -> 7
+    // Pride: 8:55-9:25 -> 8 (close to 9)
+    // Block B: 9:35-11:00 -> 9
+    // Lunch: 11:00-11:35 -> 11
+    // Block C: 11:40-13:05 -> 11 (close to 12)
+    // Block D: 13:15-14:40 -> 13
+    
+    const periodHours: { [key: string]: number } = {
+      'A': 7,
+      'Pride': 8,
+      'B': 9,
+      'Lunch': 11,
+      'C': 12,
+      'D': 13
+    };
+    
+    return periodHours[periodSlot] ?? null;
   }
 
   getHourLabel(hour: number): string {

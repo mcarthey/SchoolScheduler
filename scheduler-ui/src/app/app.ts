@@ -11,8 +11,9 @@ import { ScheduleExplorerComponent } from './schedule-explorer.component';
     `
       :host {
         display: block;
-        height: 100vh;
-        overflow: hidden;
+        min-height: 100vh;
+        overflow-x: hidden;
+        overflow-y: auto;
       }
     `
   ]

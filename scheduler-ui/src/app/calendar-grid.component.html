@@ -24,7 +24,22 @@
     </div>
 
     <!-- Grid rows: Hours and cells -->
-    <div class="grid-rows">
+    <div class="grid-rows" *ngIf="showTimes; else collapsedRows">
+      <!-- Unassigned row for classes without period/time -->
+      <div class="grid-row" *ngIf="hasUnassignedClasses">
+        <div class="time-label">Unassigned</div>
+        <div *ngFor="let monthClasses of unassignedGrid; let mi = index" class="grid-cell">
+          <div *ngFor="let cls of monthClasses"
+               class="class-block"
+               [style.background-color]="getClassColor(cls)"
+               [title]="cls.name + ' (' + cls.termSlot + ')'"
+               (click)="onClassClick(cls)">
+            <div class="class-name">{{ cls.name }}</div>
+            <div class="class-slot">{{ cls.termSlot }}</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Row for each hour -->
       <div *ngFor="let hour of hours" class="grid-row">
         <!-- Time label -->
@@ -45,6 +60,27 @@
         </div>
       </div>
     </div>
+
+    <!-- Collapsed (Student) rows: one row per class -->
+    <ng-template #collapsedRows>
+      <div class="grid-rows">
+        <div *ngFor="let row of classRows" class="grid-row">
+          <div class="time-label class-label">{{ row.class.name }}</div>
+          <div *ngFor="let hasClass of row.months; let monthIndex = index" 
+               class="grid-cell"
+               [class.empty-cell]="!hasClass">
+            <div *ngIf="hasClass" 
+                 class="class-block continuous-bar"
+                 [style.background-color]="getClassColor(row.class)"
+                 [title]="row.class.name + ' (' + row.class.termSlot + ')'"
+                 (click)="onClassClick(row.class)">
+              <div class="class-name">{{ row.class.name }}</div>
+              <div class="class-slot">{{ row.class.termSlot }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
   </div>
 
   <!-- Empty State -->

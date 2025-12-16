@@ -13,9 +13,16 @@
 
   <!-- Calendar Grid View -->
   <div class="calendar-view">
+    <div class="view-toggle">
+      <label>
+        <input type="checkbox" [checked]="showTimes" (change)="toggleViewMode()" />
+        Admin Mode (show period/time)
+      </label>
+    </div>
     <app-calendar-grid 
       [classes]="classes"
       [conflicts]="convertConflicts()"
+      [showTimes]="showTimes"
       (classClicked)="editClass($event)">
     </app-calendar-grid>
   </div>

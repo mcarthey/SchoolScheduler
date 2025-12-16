@@ -1,4 +1,5 @@
-<div class="modal-form">
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+<div class="modal-form" (click)="$event.stopPropagation()">
   <div class="modal-header">
     <h2>{{ form.id ? 'Edit Class' : 'Add New Class' }}</h2>
     <button class="btn-close" (click)="onClose()">✕</button>
@@ -70,6 +71,40 @@
       <span *ngIf="errors['termSlot']" class="error-message">{{ errors['termSlot'] }}</span>
     </div>
 
+      <!-- Period Slot Selection -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="periodSlot">Period Slot</label>
+          <select
+            id="periodSlot"
+            [(ngModel)]="form.periodSlot"
+            (change)="onPeriodSlotChange()"
+            name="periodSlot"
+            class="form-input"
+          >
+            <option value="">-- Not Assigned --</option>
+            <option *ngFor="let period of periodSlots | keyvalue" [value]="period.key">
+              {{ period.value.name }} ({{ period.value.startTime }}-{{ period.value.endTime }})
+            </option>
+          </select>
+          <small style="color: #666; font-size: 12px;">Optional: without a period, class shows in the Unassigned lane</small>
+        </div>
+      
+        <div class="form-group" *ngIf="form.durationType === 'Skinny' && form.periodSlot">
+          <label for="subPeriod">Sub-Period</label>
+          <select
+            id="subPeriod"
+            [(ngModel)]="form.subPeriod"
+            name="subPeriod"
+            class="form-input"
+          >
+            <option [value]="1">1st Half</option>
+            <option [value]="2">2nd Half</option>
+          </select>
+          <small style="color: #666; font-size: 12px;">For Skinny classes only</small>
+        </div>
+      </div>
+
     <!-- Priority -->
     <div class="form-row">
       <div class="form-group">
@@ -98,4 +133,5 @@
       {{ isSaving ? 'Saving...' : form.id ? 'Update Class' : 'Add Class' }}
     </button>
   </div>
+</div>
 </div>
