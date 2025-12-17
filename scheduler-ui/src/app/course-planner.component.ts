@@ -320,4 +320,12 @@ export class CoursePlannerComponent implements OnInit {
       };
     });
   }
+
+  getCompleteDepartmentCount(): number {
+    return this.getDepartmentProgress().filter(d => d.complete).length;
+  }
+
+  getTotalDepartmentCount(): number {
+    return this.getDepartmentProgress().length;
+  }
 }

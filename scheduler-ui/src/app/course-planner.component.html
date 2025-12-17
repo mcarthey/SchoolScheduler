@@ -73,8 +73,8 @@
         <div class="quick-stats">
           <span class="stat">{{ getAllSelectedCourses().length }} courses</span>
           <span class="stat" *ngIf="graduationRequirements">
-            {{ getDepartmentProgress().filter(d => d.complete).length }} / 
-            {{ getDepartmentProgress().length }} depts ✓
+            {{ getCompleteDepartmentCount() }} / 
+            {{ getTotalDepartmentCount() }} depts ✓
           </span>
         </div>
       </div>
