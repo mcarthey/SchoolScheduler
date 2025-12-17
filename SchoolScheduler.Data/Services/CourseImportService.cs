@@ -33,12 +33,15 @@ public class CourseImportService
 
         foreach (var record in records)
         {
+            // Determine actual duration from credits (more reliable than Duration field)
+            var actualDuration = DetermineDurationFromCredits(record.Credits, record.Duration);
+            
             var course = new Course
             {
                 Name = record.CourseName,
                 CourseCode = record.CourseCode,
                 Department = record.Department,
-                Duration = record.Duration,
+                Duration = actualDuration,
                 BlockType = record.BlockType,
                 Credits = record.Credits,
                 GradeLevels = ParseGradeLevels(record.GradeLevels).ToArray(),
@@ -119,5 +122,20 @@ public class CourseImportService
             .Where(g => int.TryParse(g, out _))
             .Select(int.Parse)
             .ToList();
+    }
+
+    private static string DetermineDurationFromCredits(decimal credits, string csvDuration)
+    {
+        // Use credits to determine actual duration (more accurate than CSV Duration field)
+        // OHS gives 0.5 credits per semester, 1.0 for full year
+        
+        return credits switch
+        {
+            0.5m => "Semester",           // Half year
+            1.0m => "Full Year",          // Full year
+            1.5m => "3 Semesters",        // Unusual: year and a half
+            2.0m => "2-Year Course",      // Double credit or 2-year program
+            _ => csvDuration              // Fallback to CSV value if unusual credit amount
+        };
     }
 }
