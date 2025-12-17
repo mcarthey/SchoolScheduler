@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.Build.NoTargets/3.7.0">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- This is a Node.js project, not a .NET project -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!-- Define custom targets for npm commands - ContinueOnError for when npm not installed -->
+  <Target Name="NpmInstall" BeforeTargets="Build">
+    <Exec Command="npm install" WorkingDirectory="$(MSBuildProjectDirectory)" ContinueOnError="true" />
+  </Target>
+
+  <Target Name="NpmScrape">
+    <Exec Command="npm run scrape" WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
+
+  <!-- Include all files in Solution Explorer -->
+  <ItemGroup>
+    <None Include="**\*.js" />
+    <None Include="**\*.json" />
+    <None Include="**\*.md" />
+  </ItemGroup>
+
+  <!-- Custom build commands for Visual Studio -->
+  <PropertyGroup>
+    <RunCommand>npm</RunCommand>
+    <RunArguments>run scrape</RunArguments>
+    <RunWorkingDirectory>$(MSBuildProjectDirectory)</RunWorkingDirectory>
+  </PropertyGroup>
+</Project>

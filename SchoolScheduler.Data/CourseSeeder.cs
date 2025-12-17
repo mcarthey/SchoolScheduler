@@ -1,14 +1,82 @@
+using SchoolScheduler.Data;
+using SchoolScheduler.Data.Services;
+
 namespace SchoolScheduler.Data;
 
-/// <summary>
-/// Seeds the database with sample OHS course catalog.
-/// This is example data - real data would come from Xello import.
-/// </summary>
 public static class CourseSeeder
 {
     public static void SeedCourses(SchedulerDbContext db)
     {
-        if (db.Courses.Any()) return; // Already seeded
+        if (db.Courses.Any())
+        {
+            Console.WriteLine("? Courses already seeded.");
+            return;
+        }
+
+        Console.WriteLine("?? Seeding courses from CSV...");
+
+        try
+        {
+            // Path to the CSV file - try multiple locations
+            var possiblePaths = new[]
+            {
+                Path.Combine(Directory.GetCurrentDirectory(), "ohs-courses.csv"),
+                Path.Combine(AppContext.BaseDirectory, "ohs-courses.csv"),
+                Path.Combine(Directory.GetCurrentDirectory(), "..", "ohs-courses.csv"),
+                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "ohs-courses.csv")
+            };
+
+            string? csvPath = null;
+            foreach (var path in possiblePaths)
+            {
+                if (File.Exists(path))
+                {
+                    csvPath = path;
+                    break;
+                }
+            }
+
+            if (csvPath == null)
+            {
+                Console.WriteLine($"??  CSV file not found in any of these locations:");
+                foreach (var path in possiblePaths)
+                {
+                    Console.WriteLine($"   - {path}");
+                }
+                Console.WriteLine("   Using fallback sample data instead.");
+                SeedSampleCourses(db);
+                return;
+            }
+
+            Console.WriteLine($"?? Reading courses from: {csvPath}");
+
+            // Import courses from CSV
+            var courses = CourseImportService.ImportFromCsv(csvPath);
+
+            // Add courses to database
+            db.Courses.AddRange(courses);
+            db.SaveChanges();
+
+            Console.WriteLine($"? Added {courses.Count} courses to database");
+
+            // Now link prerequisites (requires course IDs to be generated)
+            CourseImportService.LinkPrerequisites(courses, csvPath);
+            db.SaveChanges();
+
+            Console.WriteLine($"? Linked prerequisites for all courses");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"? Error importing CSV: {ex.Message}");
+            Console.WriteLine($"   Stack trace: {ex.StackTrace}");
+            Console.WriteLine("   Using fallback sample data instead.");
+            SeedSampleCourses(db);
+        }
+    }
+
+    private static void SeedSampleCourses(SchedulerDbContext db)
+    {
+        Console.WriteLine("?? Seeding sample courses...");
 
         var courses = new List<Course>
         {

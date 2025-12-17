@@ -1,0 +1,12 @@
+{
+  "name": "xello-scraper",
+  "version": "1.0.0",
+  "description": "Scrapes OHS course data from Xello",
+  "scripts": {
+    "scrape": "node scrape-xello.js"
+  },
+  "dependencies": {
+    "puppeteer": "^21.6.1",
+    "csv-writer": "^1.6.0"
+  }
+}

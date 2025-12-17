@@ -52,6 +52,14 @@ export class CoursePlannerComponent implements OnInit {
   // UI state
   loading = false;
   showValidation = false;
+  
+  // Collapsible sections state
+  sectionsCollapsed = {
+    graduation: false,  // Start expanded (most important)
+    actions: true,      // Start collapsed (less used)
+    selected: false,    // Start expanded (need to see selections)
+    validation: false   // Start expanded when visible
+  };
 
   constructor(
     private courseService: CourseService,
@@ -111,11 +119,13 @@ export class CoursePlannerComponent implements OnInit {
   }
 
   applyFilters() {
-    // Don't filter if courses haven't loaded yet
+    // Set empty array if courses haven't loaded yet (but don't return - still set it)
     if (!this.courses || this.courses.length === 0) {
       this.filteredCourses = [];
       return;
     }
+
+    console.log('Applying filters - courses:', this.courses.length, 'grade:', this.currentGradeLevel);
 
     let filtered = this.courses;
 
@@ -123,6 +133,8 @@ export class CoursePlannerComponent implements OnInit {
     filtered = filtered.filter(c => 
       c.gradeLevels.length === 0 || c.gradeLevels.includes(this.currentGradeLevel)
     );
+
+    console.log('After grade filter:', filtered.length);
 
     // Filter by department
     if (this.selectedDepartment !== 'All') {
@@ -140,6 +152,7 @@ export class CoursePlannerComponent implements OnInit {
     }
 
     this.filteredCourses = filtered;
+    console.log('Filtered courses set:', this.filteredCourses.length);
   }
 
   isSelected(course: Course): boolean {
@@ -287,5 +300,24 @@ export class CoursePlannerComponent implements OnInit {
     if (year.selectedCourses.length === 0) return 'empty';
     if (year.totalCredits >= 6) return 'complete';
     return 'partial';
+  }
+
+  toggleSection(section: 'graduation' | 'actions' | 'selected' | 'validation') {
+    this.sectionsCollapsed[section] = !this.sectionsCollapsed[section];
+  }
+
+  getDepartmentProgress() {
+    if (!this.graduationRequirements) return [];
+    
+    return Object.entries(this.graduationRequirements.requiredCreditsByDepartment).map(([dept, required]) => {
+      const earned = this.getCreditsByDepartment()[dept] || 0;
+      return {
+        department: dept,
+        required,
+        earned,
+        remaining: Math.max(0, required - earned),
+        complete: earned >= required
+      };
+    });
   }
 }

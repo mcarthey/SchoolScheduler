@@ -1,0 +1,19 @@
+{
+  "profiles": {
+    "Scrape Xello Courses": {
+      "commandName": "Executable",
+      "executablePath": "npm",
+      "commandLineArgs": "run scrape",
+      "workingDirectory": "$(ProjectDir)",
+      "environmentVariables": {
+        "NODE_ENV": "development"
+      }
+    },
+    "Install Dependencies": {
+      "commandName": "Executable",
+      "executablePath": "npm",
+      "commandLineArgs": "install",
+      "workingDirectory": "$(ProjectDir)"
+    }
+  }
+}

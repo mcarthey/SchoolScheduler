@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchoolScheduler.Tests", "Sc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchedulerUI", "scheduler-ui\SchedulerUI.csproj", "{A0315B06-085F-A06F-99C9-B689F2B6636F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "xello-scraper", "xello-scraper", "{D86F8647-CF41-82E8-B54F-CD833C7EB14C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XelloScraper", "xello-scraper\XelloScraper.csproj", "{4D86E4B6-167A-476F-910D-077D16A8F82F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,9 +73,24 @@ Global
 		{A0315B06-085F-A06F-99C9-B689F2B6636F}.Release|x64.Build.0 = Release|Any CPU
 		{A0315B06-085F-A06F-99C9-B689F2B6636F}.Release|x86.ActiveCfg = Release|Any CPU
 		{A0315B06-085F-A06F-99C9-B689F2B6636F}.Release|x86.Build.0 = Release|Any CPU
+		{4D86E4B6-167A-476F-910D-077D16A8F82F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D86E4B6-167A-476F-910D-077D16A8F82F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D86E4B6-167A-476F-910D-077D16A8F82F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4D86E4B6-167A-476F-910D-077D16A8F82F}.Debug|x64.Build.0 = Debug|Any CPU
+		{4D86E4B6-167A-476F-910D-077D16A8F82F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4D86E4B6-167A-476F-910D-077D16A8F82F}.Debug|x86.Build.0 = Debug|Any CPU
+		{4D86E4B6-167A-476F-910D-077D16A8F82F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D86E4B6-167A-476F-910D-077D16A8F82F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D86E4B6-167A-476F-910D-077D16A8F82F}.Release|x64.ActiveCfg = Release|Any CPU
+		{4D86E4B6-167A-476F-910D-077D16A8F82F}.Release|x64.Build.0 = Release|Any CPU
+		{4D86E4B6-167A-476F-910D-077D16A8F82F}.Release|x86.ActiveCfg = Release|Any CPU
+		{4D86E4B6-167A-476F-910D-077D16A8F82F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4D86E4B6-167A-476F-910D-077D16A8F82F} = {D86F8647-CF41-82E8-B54F-CD833C7EB14C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {948B1FD9-B4C8-4A07-8E16-E166C561DD12}
