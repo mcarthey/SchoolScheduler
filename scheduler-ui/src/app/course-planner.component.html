@@ -226,7 +226,7 @@
         </div>
       </div>
 
-      <div class="course-grid" *ngIf="!loading && filteredCourses.length > 0">
+      <div class="course-grid" *ngIf="!loading && courses.length > 0 && filteredCourses.length > 0">
         <div 
           *ngFor="let course of filteredCourses" 
           class="course-card"
