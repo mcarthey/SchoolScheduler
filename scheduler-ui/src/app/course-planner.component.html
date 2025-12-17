@@ -79,6 +79,36 @@
         </div>
       </div>
 
+      <!-- QUICK ACTIONS (Always Visible - Not Collapsible) -->
+      <div class="quick-actions">
+        <div class="actions-header">
+          <h3>⚡ Actions</h3>
+          <div class="header-buttons">
+            <span class="last-saved" *ngIf="getLastSavedTime() !== 'Never'">
+              💾 {{ getLastSavedTime() }}
+            </span>
+            <button class="btn-collapse-all" (click)="collapseAll()" title="Collapse All Sections">
+              ▲ Collapse All
+            </button>
+          </div>
+        </div>
+        <button (click)="validateAllYears()" class="btn btn-primary">
+          🔍 Validate 4-Year Plan
+        </button>
+        <button (click)="savePlan()" class="btn btn-success">
+          💾 Save Plan to Database
+        </button>
+        <button (click)="clearYear(currentYearIndex)" class="btn btn-warning">
+          🗑️ Clear {{ currentYear.gradeName }} Year
+        </button>
+        <button (click)="clearAll()" class="btn btn-danger">
+          ⚠️ Clear All Years
+        </button>
+        <button (click)="clearSession()" class="btn btn-secondary">
+          🔄 Start Fresh Session
+        </button>
+      </div>
+
       <!-- COLLAPSIBLE: Graduation Requirements -->
       <div class="collapsible-section" [class.collapsed]="sectionsCollapsed.graduation">
         <div class="section-header" (click)="toggleSection('graduation')">
@@ -98,32 +128,6 @@
           </app-graduation-tracker>
           <div *ngIf="!graduationRequirements" class="loading-requirements">
             Loading requirements...
-          </div>
-        </div>
-      </div>
-
-      <!-- COLLAPSIBLE: Quick Actions -->
-      <div class="collapsible-section" [class.collapsed]="sectionsCollapsed.actions">
-        <div class="section-header" (click)="toggleSection('actions')">
-          <h3>
-            <span class="collapse-icon">{{ sectionsCollapsed.actions ? '▶' : '▼' }}</span>
-            ⚡ Actions
-          </h3>
-        </div>
-        <div class="section-content" *ngIf="!sectionsCollapsed.actions">
-          <div class="quick-actions">
-            <button (click)="validateAllYears()" class="btn btn-primary">
-              🔍 Validate 4-Year Plan
-            </button>
-            <button (click)="savePlan()" class="btn btn-success">
-              💾 Save Plan
-            </button>
-            <button (click)="clearYear(currentYearIndex)" class="btn btn-warning">
-              🗑️ Clear {{ currentYear.gradeName }} Year
-            </button>
-            <button (click)="clearAll()" class="btn btn-danger">
-              ⚠️ Clear All Years
-            </button>
           </div>
         </div>
       </div>

@@ -56,7 +56,6 @@ export class CoursePlannerComponent implements OnInit {
   // Collapsible sections state
   sectionsCollapsed = {
     graduation: false,  // Start expanded (most important)
-    actions: true,      // Start collapsed (less used)
     selected: false,    // Start expanded (need to see selections)
     validation: false   // Start expanded when visible
   };
@@ -70,6 +69,7 @@ export class CoursePlannerComponent implements OnInit {
   ngOnInit() {
     this.loadCourses();
     this.loadGraduationRequirements();
+    this.loadSessionFromLocalStorage();
   }
 
   loadCourses() {
@@ -167,6 +167,7 @@ export class CoursePlannerComponent implements OnInit {
     }
     this.updateYearCredits();
     this.validateAllYears();
+    this.saveSessionToLocalStorage(); // Auto-save on change
   }
 
   removeCourseFromYear(yearIndex: number, course: Course) {
@@ -174,6 +175,7 @@ export class CoursePlannerComponent implements OnInit {
       this.yearPlans[yearIndex].selectedCourses.filter(c => c.id !== course.id);
     this.updateYearCredits();
     this.validateAllYears();
+    this.saveSessionToLocalStorage(); // Auto-save on change
   }
 
   updateYearCredits() {
@@ -302,8 +304,14 @@ export class CoursePlannerComponent implements OnInit {
     return 'partial';
   }
 
-  toggleSection(section: 'graduation' | 'actions' | 'selected' | 'validation') {
+  toggleSection(section: 'graduation' | 'selected' | 'validation') {
     this.sectionsCollapsed[section] = !this.sectionsCollapsed[section];
+  }
+
+  collapseAll() {
+    this.sectionsCollapsed.graduation = true;
+    this.sectionsCollapsed.selected = true;
+    this.sectionsCollapsed.validation = true;
   }
 
   getDepartmentProgress() {
@@ -327,5 +335,133 @@ export class CoursePlannerComponent implements OnInit {
 
   getTotalDepartmentCount(): number {
     return this.getDepartmentProgress().length;
+  }
+
+  // ===== LOCAL STORAGE SESSION MANAGEMENT =====
+  
+  private saveSessionToLocalStorage() {
+    const session = {
+      studentName: this.studentName,
+      currentGrade: this.currentGrade,
+      schoolYear: this.schoolYear,
+      currentYearIndex: this.currentYearIndex,
+      yearPlans: this.yearPlans.map(year => ({
+        gradeLevel: year.gradeLevel,
+        gradeName: year.gradeName,
+        selectedCourseIds: year.selectedCourses.map(c => c.id),
+        totalCredits: year.totalCredits
+      })),
+      sectionsCollapsed: this.sectionsCollapsed,
+      lastSaved: new Date().toISOString()
+    };
+    
+    localStorage.setItem('ohs-course-planner-session', JSON.stringify(session));
+    console.log('Session auto-saved to localStorage');
+  }
+
+  private loadSessionFromLocalStorage() {
+    const savedSession = localStorage.getItem('ohs-course-planner-session');
+    if (!savedSession) {
+      console.log('No saved session found');
+      return;
+    }
+
+    try {
+      const session = JSON.parse(savedSession);
+      
+      // Restore student info
+      this.studentName = session.studentName || '';
+      this.currentGrade = session.currentGrade || 9;
+      this.schoolYear = session.schoolYear || '2025-2026';
+      this.currentYearIndex = session.currentYearIndex || 0;
+      
+      // Restore collapsed state
+      if (session.sectionsCollapsed) {
+        this.sectionsCollapsed = session.sectionsCollapsed;
+      }
+
+      // Wait for courses to load before restoring selections
+      const restoreInterval = setInterval(() => {
+        if (this.courses.length > 0) {
+          clearInterval(restoreInterval);
+          this.restoreYearPlans(session.yearPlans);
+          console.log('Session restored from localStorage', new Date(session.lastSaved));
+        }
+      }, 100);
+
+      // Timeout after 10 seconds
+      setTimeout(() => clearInterval(restoreInterval), 10000);
+      
+    } catch (error) {
+      console.error('Error loading session:', error);
+    }
+  }
+
+  private restoreYearPlans(savedYearPlans: any[]) {
+    if (!savedYearPlans || !Array.isArray(savedYearPlans)) return;
+
+    savedYearPlans.forEach((savedYear, index) => {
+      if (index >= this.yearPlans.length) return;
+      
+      const year = this.yearPlans[index];
+      year.selectedCourses = [];
+      
+      if (savedYear.selectedCourseIds && Array.isArray(savedYear.selectedCourseIds)) {
+        savedYear.selectedCourseIds.forEach((courseId: number) => {
+          const course = this.courses.find(c => c.id === courseId);
+          if (course) {
+            year.selectedCourses.push(course);
+          }
+        });
+      }
+    });
+
+    this.updateYearCredits();
+    this.applyFilters();
+  }
+
+  clearSession() {
+    if (confirm('Clear your current session? This will remove all selected courses but keep saved plans in the database.')) {
+      localStorage.removeItem('ohs-course-planner-session');
+      
+      // Reset to defaults
+      this.studentName = '';
+      this.currentGrade = 9;
+      this.schoolYear = '2025-2026';
+      this.currentYearIndex = 0;
+      this.yearPlans.forEach(year => year.selectedCourses = []);
+      this.updateYearCredits();
+      this.validationResult = undefined;
+      this.showValidation = false;
+      
+      alert('Session cleared! Starting fresh.');
+    }
+  }
+
+  getLastSavedTime(): string {
+    const savedSession = localStorage.getItem('ohs-course-planner-session');
+    if (!savedSession) return 'Never';
+    
+    try {
+      const session = JSON.parse(savedSession);
+      const lastSaved = new Date(session.lastSaved);
+      const now = new Date();
+      const diffMs = now.getTime() - lastSaved.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      
+      if (diffMins < 1) return 'Just now';
+      if (diffMins === 1) return '1 minute ago';
+      if (diffMins < 60) return `${diffMins} minutes ago`;
+      
+      const diffHours = Math.floor(diffMins / 60);
+      if (diffHours === 1) return '1 hour ago';
+      if (diffHours < 24) return `${diffHours} hours ago`;
+      
+      const diffDays = Math.floor(diffHours / 24);
+      if (diffDays === 1) return 'Yesterday';
+      return `${diffDays} days ago`;
+    } catch {
+      return 'Unknown';
+    }
   }
 }

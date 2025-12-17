@@ -5,24 +5,11 @@ using SchoolScheduler.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuration is now automatically loaded from appsettings.{Environment}.json
-// Removed custom Data.appsettings file loading - configuration consolidated in API project
-
-var useInMemory = builder.Environment.IsDevelopment()
-    || builder.Environment.IsEnvironment("Testing")
-    || builder.Configuration.GetValue<bool>("Database:UseInMemory");
-
+// Use SQLite for persistent storage (database file: scheduler.db)
 builder.Services.AddDbContext<SchedulerDbContext>(options =>
 {
-    if (useInMemory)
-    {
-        var dbName = builder.Configuration.GetValue<string>("Database:InMemoryDbName") ?? "SchedulerDevDb";
-        options.UseInMemoryDatabase(dbName);
-    }
-    else
-    {
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    }
+    var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "scheduler.db");
+    options.UseSqlite($"Data Source={dbPath}");
 });
 
 // Register services
@@ -264,14 +251,11 @@ app.MapGet("/api/graduation-requirements/recommendations/{gradeLevel}", (int gra
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<SchedulerDbContext>();
-    if (useInMemory)
-    {
-        db.Database.EnsureCreated();
-    }
-    else
-    {
-        db.Database.Migrate();
-    }
+    
+    // Ensure database is created and migrations applied
+    db.Database.EnsureCreated();
+    
+    // Seed data only if empty
     DbSeeder.Seed(db);
 }
 
